@@ -6,7 +6,7 @@
  * Chargée automatiquement par l'intégration : aucune ressource à ajouter.
  */
 (() => {
-const CARD_VERSION = "0.2.0b2";
+const CARD_VERSION = "0.2.0";
 const FORUM = "https://forum.hacf.fr";
 const SITE = "https://www.hacf.fr";
 

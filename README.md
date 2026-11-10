@@ -122,6 +122,21 @@ Les listes (`topics`, `notifications`, `articles`) ne sont pas enregistrées dan
 - La clé du compte reste dans Home Assistant ; elle est retirée des **diagnostics**, comme votre pseudo.
 - Les avatars et les images des articles sont chargés depuis le forum et le site par votre navigateur.
 
+## Historique des versions
+
+### 0.2.0
+
+- ✨ **Nouveauté** : onglet **Actus** avec les articles de la rubrique Actualités de hacf.fr (image, résumé, date, auteur, badge **nouveau**).
+- ➕ **Ajouts** : capteur **Actualités hacf.fr** (date du dernier article), option d'intégration pour activer ou couper les actualités, option de carte `show_news`, démo mise à jour.
+- 🐛 **Correction** : flux des actualités lu en entier (onglet vide dans la première bêta).
+
+### 0.1.0
+
+- ✨ Première version stable : onglets **Sujets**, **Mes sujets** et **Notifications** (compte relié en lecture seule), carte installée avec l'intégration, français, anglais et polonais.
+- 🐛 Carte chargée même quand l'interface démarre après l'intégration ; « dernier message de … » sous chaque sujet ; nom de badge non répété.
+
+Détail de chaque version : [releases](https://github.com/Marlboro62/hacf-forum/releases).
+
 ## Signaler un problème
 
 Ouvrez une [issue GitHub](https://github.com/Marlboro62/hacf-forum/issues), avec les **diagnostics** de l'intégration (téléchargeables depuis sa page). Ne collez jamais le texte affiché par le forum lors de l'autorisation.
