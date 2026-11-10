@@ -34,6 +34,14 @@ Intégration et carte **non officielles** pour suivre le [forum HACF](https://fo
 
 🎮 **[Essayer la démo en ligne](https://marlboro62.github.io/hacf-forum/docs/demo.html)** : la vraie carte avec des sujets, des membres et des notifications fictifs, sans installer Home Assistant (sombre ou clair, trois langues, compte relié ou non).
 
+<p align="center">
+  <img src="docs/images/carte-sujets.png" alt="Onglet Sujets" width="260">
+  <img src="docs/images/carte-mes-sujets.png" alt="Onglet Mes sujets" width="260">
+  <img src="docs/images/carte-notifications.png" alt="Onglet Notifications" width="260">
+</p>
+
+<p align="center"><em>Captures de la démo : sujets, membres et notifications fictifs.</em></p>
+
 ## Fonctionnalités
 
 - **Derniers sujets** : tout le forum ou une catégorie au choix, avec la catégorie, les réponses, les vues, les « j'aime », l'heure et l'auteur du dernier message. Les sujets actifs depuis votre dernière visite sont marqués **nouveau**.
