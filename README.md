@@ -26,6 +26,7 @@
     height="45"
     style="display: block; border: 0;"
   ></a>
+</div>
 
 Intégration et carte **non officielles** pour suivre le [forum HACF](https://forum.hacf.fr) (communauté francophone de Home Assistant) depuis votre tableau de bord : **derniers sujets**, **vos sujets** et **vos notifications**.
 
