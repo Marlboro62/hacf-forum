@@ -6,7 +6,7 @@
  * Chargée automatiquement par l'intégration : aucune ressource à ajouter.
  */
 (() => {
-const CARD_VERSION = "0.1.0b2";
+const CARD_VERSION = "0.1.0b3";
 const FORUM = "https://forum.hacf.fr";
 
 const DEFAULTS = {
@@ -28,7 +28,7 @@ const I18N = {
     open: "Ouvrir le forum", seen: "Tout marquer comme vu", none_latest: "Aucun sujet pour le moment.",
     none_mine: "Aucun sujet ouvert par ce pseudo.", none_notifs: "Aucune notification.", unread: "non lues",
     news: "nouveaux", new_badge: "nouveau", replies: "réponses", reply: "réponse", views: "vues", likes: "j'aime",
-    by: "par", updated: "Mis à jour", unofficial: "Intégration non officielle",
+    by: "dernier message de", updated: "Mis à jour", unofficial: "Intégration non officielle",
     missing: "Intégration HACF Forum introuvable", missing_hint: "Ajoutez-la dans Paramètres › Appareils et services › Ajouter une intégration › HACF Forum.",
     no_account: "Reliez votre compte HACF pour voir vos notifications : Paramètres › Appareils et services › HACF Forum › Configurer.",
     pinned: "Épinglé", closed: "Fermé", solved: "Résolu",
@@ -48,7 +48,7 @@ const I18N = {
     open: "Open the forum", seen: "Mark all as seen", none_latest: "No topics yet.",
     none_mine: "No topics opened by this user.", none_notifs: "No notifications.", unread: "unread",
     news: "new", new_badge: "new", replies: "replies", reply: "reply", views: "views", likes: "likes",
-    by: "by", updated: "Updated", unofficial: "Unofficial integration",
+    by: "last post by", updated: "Updated", unofficial: "Unofficial integration",
     missing: "HACF Forum integration not found", missing_hint: "Add it in Settings › Devices & services › Add integration › HACF Forum.",
     no_account: "Link your HACF account to see your notifications: Settings › Devices & services › HACF Forum › Configure.",
     pinned: "Pinned", closed: "Closed", solved: "Solved",
@@ -68,7 +68,7 @@ const I18N = {
     open: "Otwórz forum", seen: "Oznacz wszystko jako przejrzane", none_latest: "Brak tematów.",
     none_mine: "Brak tematów tego użytkownika.", none_notifs: "Brak powiadomień.", unread: "nieprzeczytane",
     news: "nowe", new_badge: "nowe", replies: "odpowiedzi", reply: "odpowiedź", views: "wyświetleń", likes: "polubień",
-    by: "przez", updated: "Zaktualizowano", unofficial: "Integracja nieoficjalna",
+    by: "ostatni post:", updated: "Zaktualizowano", unofficial: "Integracja nieoficjalna",
     missing: "Nie znaleziono integracji HACF Forum", missing_hint: "Dodaj ją w Ustawienia › Urządzenia i usługi › Dodaj integrację › HACF Forum.",
     no_account: "Połącz konto HACF, aby widzieć powiadomienia: Ustawienia › Urządzenia i usługi › HACF Forum › Konfiguruj.",
     pinned: "Przypięty", closed: "Zamknięty", solved: "Rozwiązany",
@@ -253,7 +253,7 @@ class HacfForumCard extends HTMLElement {
     return `<a class="row${n.read ? "" : " new"}" href="${esc(safeUrl(n.url))}" target="_blank" rel="noopener noreferrer">
       <span class="av av-i n-${n.read ? "read" : "unread"}"><ha-icon icon="${esc(N_ICON[n.type] || N_ICON.other)}"></ha-icon></span>
       <div class="rb"><div class="rt"><span>${esc(label)}</span></div>
-        <div class="rm">${n.title ? `<span class="nt">${esc(n.title)}</span>` : ""}<span class="when">${esc(this._ago(n.created_at))}</span></div></div></a>`;
+        <div class="rm">${n.title && !(n.type === "granted_badge" && n.title === n.badge) ? `<span class="nt">${esc(n.title)}</span>` : ""}<span class="when">${esc(this._ago(n.created_at))}</span></div></div></a>`;
   }
 
   _render() {
