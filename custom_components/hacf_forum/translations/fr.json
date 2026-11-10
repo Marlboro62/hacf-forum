@@ -1,0 +1,144 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Forum HACF",
+        "description": "Suit les sujets du forum de la communauté francophone de Home Assistant (intégration non officielle).",
+        "data": {
+          "username": "Pseudo sur le forum HACF"
+        },
+        "data_description": {
+          "username": "Facultatif : pour la liste « Mes sujets ». Laissez vide pour ne suivre que les derniers sujets."
+        }
+      },
+      "menu": {
+        "title": "Notifications du forum",
+        "description": "Pour voir vos notifications (mentions, réponses, messages privés), reliez votre compte HACF. C'est facultatif et peut se faire plus tard dans les options.",
+        "menu_options": {
+          "account": "Relier mon compte HACF (notifications)",
+          "finish": "Terminer sans relier de compte"
+        }
+      },
+      "account": {
+        "title": "Relier votre compte HACF",
+        "description": "1. Connectez-vous au forum, puis ouvrez **[cette page d'autorisation]({url})**.\n2. Cliquez sur **Autoriser** : le forum affiche un long texte.\n3. Copiez tout ce texte et collez-le ci-dessous.\n\nL'accès est en lecture seule (sujets et notifications). Vous pouvez le retirer à tout moment dans votre profil du forum : Préférences › Sécurité › Applications.",
+        "data": {
+          "payload": "Texte affiché par le forum"
+        },
+        "data_description": {
+          "payload": "Collez le texte en entier, tel quel."
+        }
+      },
+      "reauth_confirm": {
+        "title": "Relier de nouveau votre compte HACF",
+        "description": "1. Connectez-vous au forum, puis ouvrez **[cette page d'autorisation]({url})**.\n2. Cliquez sur **Autoriser** : le forum affiche un long texte.\n3. Copiez tout ce texte et collez-le ci-dessous.\n\nL'accès est en lecture seule (sujets et notifications). Vous pouvez le retirer à tout moment dans votre profil du forum : Préférences › Sécurité › Applications.",
+        "data": {
+          "payload": "Texte affiché par le forum"
+        },
+        "data_description": {
+          "payload": "Collez le texte en entier, tel quel."
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Le forum HACF ne répond pas. Réessayez dans quelques minutes.",
+      "unknown_user": "Ce pseudo n'existe pas sur le forum HACF.",
+      "invalid_payload": "Texte illisible : recommencez à partir du lien de cette page (un nouveau lien est créé à chaque fois) et collez le texte en entier.",
+      "invalid_auth": "Le forum a refusé l'accès. Recommencez l'autorisation."
+    },
+    "abort": {
+      "already_configured": "Ce pseudo est déjà suivi.",
+      "reauth_successful": "Votre compte HACF est de nouveau relié."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Forum HACF",
+        "menu_options": {
+          "settings": "Catégorie et affichage",
+          "account": "Relier mon compte HACF (notifications)",
+          "unlink": "Délier mon compte HACF"
+        }
+      },
+      "settings": {
+        "title": "Catégorie et affichage",
+        "data": {
+          "category": "Catégorie suivie",
+          "topics": "Nombre de sujets",
+          "scan_minutes": "Fréquence de mise à jour"
+        },
+        "data_description": {
+          "category": "« — » : tout le forum.",
+          "topics": "Sujets gardés dans chaque liste (5 à 50).",
+          "scan_minutes": "En minutes (5 minimum, pour ménager le forum)."
+        }
+      },
+      "account": {
+        "title": "Relier votre compte HACF",
+        "description": "1. Connectez-vous au forum, puis ouvrez **[cette page d'autorisation]({url})**.\n2. Cliquez sur **Autoriser** : le forum affiche un long texte.\n3. Copiez tout ce texte et collez-le ci-dessous.\n\nL'accès est en lecture seule (sujets et notifications). Vous pouvez le retirer à tout moment dans votre profil du forum : Préférences › Sécurité › Applications.",
+        "data": {
+          "payload": "Texte affiché par le forum"
+        },
+        "data_description": {
+          "payload": "Collez le texte en entier, tel quel."
+        }
+      },
+      "unlink": {
+        "title": "Délier mon compte HACF",
+        "description": "Les notifications ne seront plus lues. Pensez aussi à retirer l'accès dans votre profil du forum : Préférences › Sécurité › Applications."
+      }
+    },
+    "error": {
+      "cannot_connect": "Le forum HACF ne répond pas. Réessayez dans quelques minutes.",
+      "invalid_payload": "Texte illisible : recommencez à partir du lien de cette page (un nouveau lien est créé à chaque fois) et collez le texte en entier.",
+      "invalid_auth": "Le forum a refusé l'accès. Recommencez l'autorisation."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "latest_topics": {
+        "name": "Derniers sujets",
+        "state_attributes": {
+          "topics": {
+            "name": "Sujets"
+          },
+          "category": {
+            "name": "Catégorie suivie"
+          },
+          "forum_url": {
+            "name": "Lien du forum"
+          }
+        }
+      },
+      "my_topics": {
+        "name": "Mes sujets",
+        "state_attributes": {
+          "topics": {
+            "name": "Sujets"
+          },
+          "username": {
+            "name": "Pseudo sur le forum HACF"
+          },
+          "forum_url": {
+            "name": "Lien du forum"
+          }
+        }
+      },
+      "notifications": {
+        "name": "Notifications",
+        "state_attributes": {
+          "notifications": {
+            "name": "Notifications"
+          },
+          "account": {
+            "name": "Compte"
+          },
+          "forum_url": {
+            "name": "Lien du forum"
+          }
+        }
+      }
+    }
+  }
+}

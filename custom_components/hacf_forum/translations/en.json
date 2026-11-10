@@ -1,0 +1,144 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "HACF forum",
+        "description": "Follows the topics of the French-speaking Home Assistant community forum (unofficial integration).",
+        "data": {
+          "username": "Username on the HACF forum"
+        },
+        "data_description": {
+          "username": "Optional: for the “My topics” list. Leave empty to follow only the latest topics."
+        }
+      },
+      "menu": {
+        "title": "Forum notifications",
+        "description": "To see your notifications (mentions, replies, private messages), link your HACF account. This is optional and can be done later in the options.",
+        "menu_options": {
+          "account": "Link my HACF account (notifications)",
+          "finish": "Finish without linking an account"
+        }
+      },
+      "account": {
+        "title": "Link your HACF account",
+        "description": "1. Log in to the forum, then open **[this authorization page]({url})**.\n2. Click **Authorize**: the forum shows a long text.\n3. Copy all of it and paste it below.\n\nAccess is read-only (topics and notifications). You can revoke it at any time in your forum profile: Preferences › Security › Apps.",
+        "data": {
+          "payload": "Text shown by the forum"
+        },
+        "data_description": {
+          "payload": "Paste the whole text, as is."
+        }
+      },
+      "reauth_confirm": {
+        "title": "Link your HACF account again",
+        "description": "1. Log in to the forum, then open **[this authorization page]({url})**.\n2. Click **Authorize**: the forum shows a long text.\n3. Copy all of it and paste it below.\n\nAccess is read-only (topics and notifications). You can revoke it at any time in your forum profile: Preferences › Security › Apps.",
+        "data": {
+          "payload": "Text shown by the forum"
+        },
+        "data_description": {
+          "payload": "Paste the whole text, as is."
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "The HACF forum does not respond. Try again in a few minutes.",
+      "unknown_user": "This username does not exist on the HACF forum.",
+      "invalid_payload": "Unreadable text: start again from the link on this page (a new link is created each time) and paste the whole text.",
+      "invalid_auth": "The forum refused access. Start the authorization again."
+    },
+    "abort": {
+      "already_configured": "This username is already followed.",
+      "reauth_successful": "Your HACF account is linked again."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "HACF forum",
+        "menu_options": {
+          "settings": "Category and display",
+          "account": "Link my HACF account (notifications)",
+          "unlink": "Unlink my HACF account"
+        }
+      },
+      "settings": {
+        "title": "Category and display",
+        "data": {
+          "category": "Followed category",
+          "topics": "Number of topics",
+          "scan_minutes": "Update interval"
+        },
+        "data_description": {
+          "category": "“—”: the whole forum.",
+          "topics": "Topics kept in each list (5 to 50).",
+          "scan_minutes": "In minutes (at least 5, to spare the forum)."
+        }
+      },
+      "account": {
+        "title": "Link your HACF account",
+        "description": "1. Log in to the forum, then open **[this authorization page]({url})**.\n2. Click **Authorize**: the forum shows a long text.\n3. Copy all of it and paste it below.\n\nAccess is read-only (topics and notifications). You can revoke it at any time in your forum profile: Preferences › Security › Apps.",
+        "data": {
+          "payload": "Text shown by the forum"
+        },
+        "data_description": {
+          "payload": "Paste the whole text, as is."
+        }
+      },
+      "unlink": {
+        "title": "Unlink my HACF account",
+        "description": "Notifications will no longer be read. Also revoke the access in your forum profile: Preferences › Security › Apps."
+      }
+    },
+    "error": {
+      "cannot_connect": "The HACF forum does not respond. Try again in a few minutes.",
+      "invalid_payload": "Unreadable text: start again from the link on this page (a new link is created each time) and paste the whole text.",
+      "invalid_auth": "The forum refused access. Start the authorization again."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "latest_topics": {
+        "name": "Latest topics",
+        "state_attributes": {
+          "topics": {
+            "name": "Topics"
+          },
+          "category": {
+            "name": "Followed category"
+          },
+          "forum_url": {
+            "name": "Forum link"
+          }
+        }
+      },
+      "my_topics": {
+        "name": "My topics",
+        "state_attributes": {
+          "topics": {
+            "name": "Topics"
+          },
+          "username": {
+            "name": "Username on the HACF forum"
+          },
+          "forum_url": {
+            "name": "Forum link"
+          }
+        }
+      },
+      "notifications": {
+        "name": "Notifications",
+        "state_attributes": {
+          "notifications": {
+            "name": "Notifications"
+          },
+          "account": {
+            "name": "Account"
+          },
+          "forum_url": {
+            "name": "Forum link"
+          }
+        }
+      }
+    }
+  }
+}

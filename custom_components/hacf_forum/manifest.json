@@ -1,0 +1,18 @@
+{
+  "domain": "hacf_forum",
+  "name": "HACF Forum",
+  "after_dependencies": [
+    "frontend",
+    "http"
+  ],
+  "codeowners": [
+    "@Marlboro62"
+  ],
+  "config_flow": true,
+  "documentation": "https://github.com/Marlboro62/hacf-forum",
+  "integration_type": "service",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/Marlboro62/hacf-forum/issues",
+  "requirements": [],
+  "version": "0.1.0b1"
+}

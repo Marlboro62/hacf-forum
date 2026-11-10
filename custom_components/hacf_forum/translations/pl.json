@@ -1,0 +1,144 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Forum HACF",
+        "description": "Śledzi tematy forum francuskojęzycznej społeczności Home Assistant (integracja nieoficjalna).",
+        "data": {
+          "username": "Nazwa użytkownika na forum HACF"
+        },
+        "data_description": {
+          "username": "Opcjonalnie: dla listy „Moje tematy”. Zostaw puste, aby śledzić tylko najnowsze tematy."
+        }
+      },
+      "menu": {
+        "title": "Powiadomienia z forum",
+        "description": "Aby widzieć powiadomienia (wzmianki, odpowiedzi, wiadomości prywatne), połącz konto HACF. To opcjonalne i można to zrobić później w opcjach.",
+        "menu_options": {
+          "account": "Połącz moje konto HACF (powiadomienia)",
+          "finish": "Zakończ bez łączenia konta"
+        }
+      },
+      "account": {
+        "title": "Połącz konto HACF",
+        "description": "1. Zaloguj się na forum, a następnie otwórz **[tę stronę autoryzacji]({url})**.\n2. Kliknij **Autoryzuj**: forum wyświetli długi tekst.\n3. Skopiuj cały tekst i wklej go poniżej.\n\nDostęp jest tylko do odczytu (tematy i powiadomienia). Możesz go cofnąć w każdej chwili w profilu na forum: Preferencje › Bezpieczeństwo › Aplikacje.",
+        "data": {
+          "payload": "Tekst wyświetlony przez forum"
+        },
+        "data_description": {
+          "payload": "Wklej cały tekst bez zmian."
+        }
+      },
+      "reauth_confirm": {
+        "title": "Połącz ponownie konto HACF",
+        "description": "1. Zaloguj się na forum, a następnie otwórz **[tę stronę autoryzacji]({url})**.\n2. Kliknij **Autoryzuj**: forum wyświetli długi tekst.\n3. Skopiuj cały tekst i wklej go poniżej.\n\nDostęp jest tylko do odczytu (tematy i powiadomienia). Możesz go cofnąć w każdej chwili w profilu na forum: Preferencje › Bezpieczeństwo › Aplikacje.",
+        "data": {
+          "payload": "Tekst wyświetlony przez forum"
+        },
+        "data_description": {
+          "payload": "Wklej cały tekst bez zmian."
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Forum HACF nie odpowiada. Spróbuj ponownie za kilka minut.",
+      "unknown_user": "Ta nazwa użytkownika nie istnieje na forum HACF.",
+      "invalid_payload": "Nieczytelny tekst: zacznij od linku na tej stronie (za każdym razem tworzony jest nowy link) i wklej cały tekst.",
+      "invalid_auth": "Forum odmówiło dostępu. Powtórz autoryzację."
+    },
+    "abort": {
+      "already_configured": "Ta nazwa użytkownika jest już śledzona.",
+      "reauth_successful": "Konto HACF zostało ponownie połączone."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Forum HACF",
+        "menu_options": {
+          "settings": "Kategoria i wyświetlanie",
+          "account": "Połącz moje konto HACF (powiadomienia)",
+          "unlink": "Odłącz moje konto HACF"
+        }
+      },
+      "settings": {
+        "title": "Kategoria i wyświetlanie",
+        "data": {
+          "category": "Śledzona kategoria",
+          "topics": "Liczba tematów",
+          "scan_minutes": "Częstotliwość aktualizacji"
+        },
+        "data_description": {
+          "category": "„—”: całe forum.",
+          "topics": "Tematy zachowane na każdej liście (5 do 50).",
+          "scan_minutes": "W minutach (minimum 5, aby oszczędzać forum)."
+        }
+      },
+      "account": {
+        "title": "Połącz konto HACF",
+        "description": "1. Zaloguj się na forum, a następnie otwórz **[tę stronę autoryzacji]({url})**.\n2. Kliknij **Autoryzuj**: forum wyświetli długi tekst.\n3. Skopiuj cały tekst i wklej go poniżej.\n\nDostęp jest tylko do odczytu (tematy i powiadomienia). Możesz go cofnąć w każdej chwili w profilu na forum: Preferencje › Bezpieczeństwo › Aplikacje.",
+        "data": {
+          "payload": "Tekst wyświetlony przez forum"
+        },
+        "data_description": {
+          "payload": "Wklej cały tekst bez zmian."
+        }
+      },
+      "unlink": {
+        "title": "Odłącz moje konto HACF",
+        "description": "Powiadomienia nie będą już odczytywane. Cofnij też dostęp w profilu na forum: Preferencje › Bezpieczeństwo › Aplikacje."
+      }
+    },
+    "error": {
+      "cannot_connect": "Forum HACF nie odpowiada. Spróbuj ponownie za kilka minut.",
+      "invalid_payload": "Nieczytelny tekst: zacznij od linku na tej stronie (za każdym razem tworzony jest nowy link) i wklej cały tekst.",
+      "invalid_auth": "Forum odmówiło dostępu. Powtórz autoryzację."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "latest_topics": {
+        "name": "Najnowsze tematy",
+        "state_attributes": {
+          "topics": {
+            "name": "Tematy"
+          },
+          "category": {
+            "name": "Śledzona kategoria"
+          },
+          "forum_url": {
+            "name": "Link do forum"
+          }
+        }
+      },
+      "my_topics": {
+        "name": "Moje tematy",
+        "state_attributes": {
+          "topics": {
+            "name": "Tematy"
+          },
+          "username": {
+            "name": "Nazwa użytkownika na forum HACF"
+          },
+          "forum_url": {
+            "name": "Link do forum"
+          }
+        }
+      },
+      "notifications": {
+        "name": "Powiadomienia",
+        "state_attributes": {
+          "notifications": {
+            "name": "Powiadomienia"
+          },
+          "account": {
+            "name": "Konto"
+          },
+          "forum_url": {
+            "name": "Link do forum"
+          }
+        }
+      }
+    }
+  }
+}
