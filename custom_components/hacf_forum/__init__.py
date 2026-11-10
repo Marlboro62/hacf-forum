@@ -5,8 +5,8 @@ import logging
 from pathlib import Path
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import Platform
-from homeassistant.core import HomeAssistant
+from homeassistant.const import EVENT_COMPONENT_LOADED, Platform
+from homeassistant.core import Event, HomeAssistant, callback
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.typing import ConfigType
@@ -24,17 +24,34 @@ type ForumConfigEntry = ConfigEntry[ForumCoordinator]
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Carte du forum servie par Home Assistant et chargée dans l'interface : rien à ajouter à la main."""
-    if hass.http is None or "frontend" not in hass.config.components:
+    if hass.http is None:
         _LOGGER.debug("Interface web absente : la carte n'est pas chargée")
         return True
-    from homeassistant.components.frontend import add_extra_js_url
     from homeassistant.components.http import StaticPathConfig
 
     await hass.http.async_register_static_paths(
         [StaticPathConfig(CARD_URL, str(Path(__file__).parent / CARD_FILE), cache_headers=False)]
     )
-    add_extra_js_url(hass, f"{CARD_URL}?v={VERSION}")
+    if "frontend" in hass.config.components:
+        _add_card(hass)
+    else:
+        # au démarrage, l'interface peut se charger après l'intégration : la carte est ajoutée dès qu'elle est prête
+        @callback
+        def _frontend_loaded(event: Event) -> None:
+            if event.data.get("component") == "frontend":
+                _add_card(hass)
+                unsub()
+
+        unsub = hass.bus.async_listen(EVENT_COMPONENT_LOADED, _frontend_loaded)
     return True
+
+
+@callback
+def _add_card(hass: HomeAssistant) -> None:
+    from homeassistant.components.frontend import add_extra_js_url
+
+    add_extra_js_url(hass, f"{CARD_URL}?v={VERSION}")
+    _LOGGER.debug("Carte du forum chargée : %s", CARD_URL)
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ForumConfigEntry) -> bool:

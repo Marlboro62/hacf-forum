@@ -54,6 +54,7 @@ Intégration et carte **non officielles** pour suivre le [forum HACF](https://fo
 1. **Paramètres › Appareils et services › Ajouter une intégration › HACF Forum**.
 2. **Pseudo sur le forum HACF** : facultatif, pour l'onglet « Mes sujets ».
 3. Choisissez **Relier mon compte HACF** pour les notifications, ou **Terminer** (c'est possible plus tard dans les options).
+4. **Rechargez la page** du navigateur (Ctrl+F5) : la carte **Forum HACF** apparaît alors dans la liste des cartes.
 
 ### Relier votre compte (notifications, facultatif)
 
