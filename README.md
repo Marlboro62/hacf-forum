@@ -28,7 +28,7 @@
   ></a>
 </div>
 
-Intégration et carte **non officielles** pour suivre le [forum HACF](https://forum.hacf.fr) (communauté francophone de Home Assistant) depuis votre tableau de bord : **derniers sujets**, **vos sujets** et **vos notifications**.
+Intégration et carte **non officielles** pour suivre le [forum HACF](https://forum.hacf.fr) (communauté francophone de Home Assistant) depuis votre tableau de bord : **derniers sujets**, **vos sujets** et **vos notifications**, ainsi que les **actualités du site hacf.fr**.
 
 > Ce projet n'est pas affilié à HACF. Il lit les pages publiques du forum et, si vous le choisissez, vos notifications avec un accès en lecture seule que vous pouvez retirer à tout moment.
 
