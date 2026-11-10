@@ -4,7 +4,7 @@ from __future__ import annotations
 from typing import Final
 
 DOMAIN: Final = "hacf_forum"
-VERSION: Final = "0.2.0b1"
+VERSION: Final = "0.2.0b2"
 
 BASE_URL: Final = "https://forum.hacf.fr"
 

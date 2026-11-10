@@ -103,9 +103,12 @@ class ForumClient:
                     return None, etag, modified
                 if resp.status != 200:
                     raise ForumError(f"HTTP {resp.status} sur le flux des actualités")
-                body = await resp.content.read(NEWS_MAX_BYTES + 1)
-                if len(body) > NEWS_MAX_BYTES:
-                    raise ForumError("flux des actualités trop volumineux")
-                return body, resp.headers.get("ETag"), resp.headers.get("Last-Modified")
+                # lecture complète par morceaux (read(n) peut rendre moins que n octets)
+                body = bytearray()
+                async for chunk in resp.content.iter_chunked(64 * 1024):
+                    body.extend(chunk)
+                    if len(body) > NEWS_MAX_BYTES:
+                        raise ForumError("flux des actualités trop volumineux")
+                return bytes(body), resp.headers.get("ETag"), resp.headers.get("Last-Modified")
         except (aiohttp.ClientError, TimeoutError) as err:
             raise ForumError(f"{type(err).__name__} sur le flux des actualités") from err

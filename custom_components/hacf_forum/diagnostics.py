@@ -23,4 +23,5 @@ async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry: ForumCo
             "news": len(data.get("news", [])),
         },
         "category": data.get("category"),
+        "news_error": entry.runtime_data.news_error,
     }

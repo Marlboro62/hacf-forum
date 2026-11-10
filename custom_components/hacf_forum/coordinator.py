@@ -69,6 +69,7 @@ class ForumCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self._news_at = 0.0
         self._news_etag: str | None = None
         self._news_modified: str | None = None
+        self.news_error: str | None = None
 
     @property
     def username(self) -> str | None:
@@ -91,8 +92,11 @@ class ForumCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             body, self._news_etag, self._news_modified = await self.client.news_feed(self._news_etag, self._news_modified)
             if body is not None:
                 self._news = await self.hass.async_add_executor_job(parse_feed, body, NEWS_ITEMS)
+            self.news_error = None
         except (ForumError, ValueError) as err:
-            _LOGGER.debug("Actualités de hacf.fr illisibles : %s", err)
+            if self.news_error is None:
+                _LOGGER.warning("Actualités de hacf.fr illisibles (nouvel essai dans 30 minutes) : %s", err)
+            self.news_error = str(err)
             # nouvel essai dans 30 minutes
             self._news_at = time.monotonic() - NEWS_HOURS * 3600 + 1800
         return self._news
