@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Forum HACF · démo</title>
+<meta name="description" content="Démonstration de la carte Forum HACF (intégration Home Assistant non officielle) avec des sujets, membres et notifications fictifs.">
+<style>
+  :root {
+    --bg: #0f1724; --panel: #172133; --line: #2a3850; --text: #e7edf5; --muted: #8fa0b8;
+    --accent: #1d93e3; --btn: #1e2a3f; --btn-on: #2b3d5c;
+    /* Variables lues par la carte en mode « Thème de Home Assistant » */
+    --card-background-color: #1c1c1c; --primary-text-color: #e1e1e1; --secondary-text-color: #9b9b9b;
+    --divider-color: rgba(225, 225, 225, .12); --primary-color: #03a9f4; --ha-card-border-radius: 12px;
+    color-scheme: dark;
+  }
+  :root[data-theme="light"] {
+    --bg: #eef2f7; --panel: #ffffff; --line: #d6dde8; --text: #1b2433; --muted: #5b6b82;
+    --accent: #1673b8; --btn: #f2f5f9; --btn-on: #dde7f5;
+    --card-background-color: #ffffff; --primary-text-color: #212121; --secondary-text-color: #727272;
+    --divider-color: rgba(0, 0, 0, .12);
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  a { color: var(--accent); }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 28px 16px 48px; }
+  .top { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 22px; }
+  .top img { width: 44px; height: 44px; border-radius: 10px; flex: none; }
+  h1 { font-size: 1.5rem; margin: 0; line-height: 1.2; }
+  .lead { margin: 2px 0 0; color: var(--muted); }
+  .badge { display: inline-block; margin-left: 6px; padding: 1px 8px; border-radius: 999px; font-size: .75rem; font-weight: 600; background: var(--btn-on); vertical-align: middle; }
+  .links { margin-left: auto; display: flex; gap: 14px; font-size: .9rem; }
+  .grid { display: grid; grid-template-columns: 320px 1fr; gap: 20px; align-items: start; }
+  @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } .links { margin-left: 0; } .stage { order: -1; } }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 16px; }
+  .panel h2 { font-size: .8rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 10px; }
+  .panel h2:not(:first-child) { margin-top: 18px; }
+  .ctl { margin-bottom: 14px; }
+  .ctl:last-child { margin-bottom: 0; }
+  .ctl-l { font-size: .85rem; margin-bottom: 6px; }
+  .seg { display: flex; flex-wrap: wrap; gap: 6px; }
+  .seg button { font: inherit; font-size: .82rem; padding: 5px 11px; border-radius: 999px; cursor: pointer; border: 1px solid var(--line); background: var(--btn); color: var(--text); }
+  .seg button[aria-pressed="true"] { background: var(--btn-on); border-color: var(--accent); font-weight: 600; }
+  .seg button:focus-visible, .copy:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .stage { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+  .frame { margin: 0 auto; width: 100%; transition: max-width .25s ease; }
+  .frame[data-width="mobile"] { max-width: 440px; }
+  .frame[data-width="large"] { max-width: 640px; }
+  .hint { font-size: .82rem; color: var(--muted); text-align: center; margin: 0; }
+  pre { margin: 0; padding: 12px; border-radius: 10px; background: var(--bg); border: 1px solid var(--line); font: 13px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; overflow-x: auto; }
+  .yaml-h { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .yaml-h h2 { margin: 0; }
+  .copy { font: inherit; font-size: .8rem; padding: 4px 10px; border-radius: 8px; cursor: pointer; border: 1px solid var(--line); background: var(--btn); color: var(--text); }
+  .note { font-size: .82rem; color: var(--muted); margin: 18px 0 0; }
+  .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); padding: 10px 16px; border-radius: 10px; background: var(--panel);
+    border: 1px solid var(--accent); font-size: .88rem; box-shadow: 0 6px 24px rgba(0,0,0,.3); opacity: 0; pointer-events: none; transition: opacity .2s; max-width: calc(100% - 32px); }
+  .toast.on { opacity: 1; }
+  @media (prefers-reduced-motion: reduce) { .frame, .toast { transition: none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <img src="../custom_components/hacf_forum/brand/icon.png" alt="">
+    <div>
+      <h1>Forum HACF <span class="badge" id="ver">démo</span></h1>
+      <p class="lead">La carte de l'intégration, avec des sujets, des membres et des notifications fictifs</p>
+    </div>
+    <nav class="links">
+      <a href="https://github.com/Marlboro62/hacf-forum">Dépôt GitHub</a>
+      <a href="https://github.com/Marlboro62/hacf-forum#installation">Installation</a>
+    </nav>
+  </header>
+
+  <div class="grid">
+    <aside class="panel" aria-label="Réglages de la démo">
+      <h2>Affichage</h2>
+      <div class="ctl"><div class="ctl-l">Page</div><div class="seg" data-key="page">
+        <button data-v="dark">Sombre</button><button data-v="light">Clair</button></div></div>
+      <div class="ctl"><div class="ctl-l">Couleurs de la carte (<code>theme</code>)</div><div class="seg" data-key="theme">
+        <button data-v="v2">Bleu nuit</button><button data-v="auto">Bleu nuit auto</button><button data-v="ha">Thème Home Assistant</button></div></div>
+      <div class="ctl"><div class="ctl-l">Langue (<code>language</code>)</div><div class="seg" data-key="language">
+        <button data-v="fr">Français</button><button data-v="en">English</button><button data-v="pl">Polski</button></div></div>
+      <div class="ctl"><div class="ctl-l">Avatars (<code>show_avatars</code>)</div><div class="seg" data-key="avatars">
+        <button data-v="yes">Affichés</button><button data-v="no">Masqués</button></div></div>
+      <div class="ctl"><div class="ctl-l">Largeur</div><div class="seg" data-key="width">
+        <button data-v="mobile">Téléphone</button><button data-v="large">Tablette / PC</button></div></div>
+
+      <h2>Situation simulée</h2>
+      <div class="ctl"><div class="ctl-l">Compte du forum</div><div class="seg" data-key="account">
+        <button data-v="linked">Relié (notifications)</button><button data-v="none">Pseudo seul</button></div></div>
+      <div class="ctl"><div class="ctl-l">Depuis votre dernière visite</div><div class="seg" data-key="news">
+        <button data-v="news">Nouveaux messages</button><button data-v="seen">Rien de neuf</button></div></div>
+    </aside>
+
+    <main class="stage">
+      <div class="frame" id="frame"></div>
+      <p class="hint">Changez d'onglet et essayez « Tout marquer comme vu ». Dans Home Assistant, un clic ouvre le sujet sur le forum ; ici, la démo l'indique seulement.</p>
+      <section class="panel">
+        <div class="yaml-h"><h2>Configuration</h2><button class="copy" id="copy">Copier</button></div>
+        <pre id="yaml"></pre>
+      </section>
+    </main>
+  </div>
+
+  <p class="note">Sujets, pseudos, avatars et notifications sont inventés : ils ne correspondent à aucun membre du forum. Dans Home Assistant, la carte
+    lit les capteurs de l'intégration, sans réglage : voir le <a href="https://github.com/Marlboro62/hacf-forum#readme">README</a>.
+    Intégration non officielle, sans lien avec l'association HACF.</p>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<!-- La carte, telle qu'elle est publiée dans le dépôt -->
+<script src="../custom_components/hacf_forum/frontend/hacf-forum-card.js"></script>
+<script>
+(() => {
+  "use strict";
+
+  /* Home Assistant fournit <ha-card> et <ha-icon>. Ici, <ha-icon> affiche les icônes Material Design Icons. */
+  if (!customElements.get("ha-card")) {
+    customElements.define("ha-card", class extends HTMLElement {
+      constructor() { super(); this.attachShadow({ mode: "open" }).innerHTML = "<style>:host{display:block}</style><slot></slot>"; }
+    });
+  }
+  if (!customElements.get("ha-icon")) {
+    customElements.define("ha-icon", class extends HTMLElement {
+      static get observedAttributes() { return ["icon"]; }
+      connectedCallback() { this._draw(); }
+      attributeChangedCallback() { this._draw(); }
+      _draw() {
+        const name = (this.getAttribute("icon") || "").replace(/^mdi:/, "");
+        if (!name) return;
+        const url = `https://cdn.jsdelivr.net/npm/@mdi/svg@7.4.47/svg/${name}.svg`;
+        this.style.cssText += `;display:inline-block;width:var(--mdc-icon-size,24px);height:var(--mdc-icon-size,24px);flex:none;` +
+          `background:currentColor;-webkit-mask:url(${url}) center/contain no-repeat;mask:url(${url}) center/contain no-repeat;`;
+      }
+    });
+  }
+
+  const defaults = { page: "dark", theme: "v2", language: "fr", avatars: "yes", width: "mobile", account: "linked", news: "news" };
+  let state = { ...defaults };
+  try { state = { ...defaults, ...JSON.parse(localStorage.getItem("hacf-forum-demo") || "{}") }; } catch (e) { /* ignoré */ }
+
+  const M = 60e3, H = 3600e3, D = 86400e3, F = "https://forum.hacf.fr";
+  const ago = (ms) => new Date(Date.now() - ms).toISOString();
+  // Avatars fictifs (lettre sur fond de couleur) ; la carte n'accepte que des adresses https
+  const av = (who) => { const u = new URL(`avatars/${who}.svg`, location.href).href; return u.startsWith("https://") ? u : null; };
+  const CAT = {
+    actu: ["Communauté HACF › Annonces", "#3ab54a"], cartes: ["Tutoriels & Partages › Interface / Lovelace", "#e45735"],
+    integ: ["Tutoriels & Partages › Intégration", "#e8a33b"], zigbee: ["Entraide Home Assistant › Zigbee", "#25aae2"],
+    diy: ["Do It Yourself › Vos projets", "#e8a33b"], bla: ["Communauté HACF › Discussions", "#9e5bbb"],
+  };
+  let id = 0;
+  const topic = (title, cat, replies, views, likes, lastMs, who, extra = {}) => {
+    const n = ++id, posts = replies + 1;
+    return { id: n, title, url: `${F}/latest`, last_url: `${F}/latest`, category: CAT[cat][0], category_color: CAT[cat][1],
+      replies, views, likes, highest_post: posts, last_posted_at: ago(lastMs), last_poster: who.name, last_poster_avatar: av(who.key),
+      pinned: false, closed: false, solved: false, tags: [], ...extra };
+  };
+  const P = Object.fromEntries(["Alice", "Bruno", "Chloé", "David", "Emma", "Félix", "Gaëlle", "Hugo", "Inès", "Jules", "Vous"]
+    .map((name) => [name, { name, key: name.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase() }]));
+
+  function data() {
+    id = 0;
+    const latest = [
+      topic("[Actu] Home Assistant 2026.11 : les nouveautés du mois", "actu", 18, 712, 31, 20 * H, P.Alice, { pinned: true }),
+      topic("Zigbee2MQTT ne démarre plus après la mise à jour", "zigbee", 7, 141, 2, 12 * M, P.Bruno, { solved: true }),
+      topic("[Carte] Une carte météo animée pour le tableau de bord", "cartes", 24, 980, 46, 35 * M, P.Chloé),
+      topic("Piloter une VMC double flux en Modbus", "integ", 5, 233, 6, 70 * M, P.David),
+      topic("Station météo maison avec un ESP32", "diy", 31, 1404, 27, 2 * H, P.Gaëlle),
+      topic("Quelle box domotique choisir en 2026 ?", "bla", 42, 2210, 18, 5 * H, P.Hugo),
+      topic("Automatisation : éteindre les lumières quand tout le monde est parti", "integ", 9, 388, 4, 9 * H, P.Inès, { solved: true }),
+      topic("[Partage] Suivi de la consommation électrique par appareil", "cartes", 63, 5120, 88, 26 * H, P.Jules),
+    ];
+    const mine = [
+      topic("[Partage] Mes cartes Lovelace pour la maison", "cartes", 57, 4310, 72, 40 * M, P.Emma),
+      topic("Capteur d'ouverture Zigbee qui se déconnecte la nuit", "zigbee", 6, 190, 3, 3 * H, P.Félix, { solved: true }),
+      topic("[Tuto] Sauvegarder Home Assistant sur un NAS", "integ", 21, 1630, 39, 4 * D, P.Vous),
+    ];
+    const notifs = [
+      { type: "replied", read: false, user: "Emma", title: mine[0].title, created_at: ago(40 * M), url: `${F}/latest` },
+      { type: "liked", read: false, user: "Hugo", title: mine[2].title, created_at: ago(2 * H), url: `${F}/latest` },
+      { type: "mentioned", read: true, user: "Bruno", title: latest[1].title, created_at: ago(20 * H), url: `${F}/latest` },
+      { type: "granted_badge", read: true, badge: "Membre actif", title: "Membre actif", created_at: ago(2 * D), url: `${F}/latest` },
+      { type: "private_message", read: true, user: "Alice", title: "Merci pour le tuto !", created_at: ago(3 * D), url: `${F}/latest` },
+      { type: "liked_consolidated", read: true, count: 12, created_at: ago(5 * D), url: `${F}/latest` },
+    ];
+    return { latest, mine, notifs };
+  }
+
+  function hass() {
+    const { latest, mine, notifs } = data(), st = {}, ent = {};
+    const add = (eid, s, attrs, key) => {
+      st[eid] = { entity_id: eid, state: String(s), attributes: attrs, last_updated: ago(1 * M) };
+      ent[eid] = { entity_id: eid, platform: "hacf_forum", translation_key: key };
+    };
+    add("sensor.forum_hacf_derniers_sujets", latest.length, { topics: latest, category: null, forum_url: `${F}/latest` }, "latest_topics");
+    add("sensor.forum_hacf_mes_sujets", mine.length, { topics: mine, forum_url: `${F}/latest` }, "my_topics");
+    if (state.account === "linked") {
+      add("sensor.forum_hacf_notifications", notifs.filter((n) => !n.read).length, { notifications: notifs, forum_url: `${F}/latest` }, "notifications");
+    }
+    return { states: st, entities: ent, themes: { darkMode: state.page === "dark" }, language: "fr", locale: { language: "fr" } };
+  }
+
+  /** Dernière visite simulée : nouveaux messages depuis 1 h, ou tout vu. */
+  function seedSeen() {
+    const { mine } = data();
+    try {
+      if (state.news === "news") {
+        localStorage.setItem("hacf-forum:seen:latest", JSON.stringify(Date.now() - 1 * H));
+        localStorage.setItem("hacf-forum:seen:mine", JSON.stringify(Object.fromEntries(mine.map((t, i) => [t.id, t.highest_post - [3, 1, 0][i]]))));
+      } else {
+        localStorage.setItem("hacf-forum:seen:latest", JSON.stringify(Date.now()));
+        localStorage.setItem("hacf-forum:seen:mine", JSON.stringify(Object.fromEntries(mine.map((t) => [t.id, t.highest_post]))));
+      }
+    } catch (e) { /* stockage indisponible : la carte considère tout comme vu */ }
+  }
+
+  function config() {
+    const c = { type: "custom:hacf-forum-card" };
+    if (state.theme !== "v2") c.theme = state.theme;
+    c.language = state.language;
+    if (state.avatars === "no") c.show_avatars = false;
+    return c;
+  }
+
+  const frame = document.getElementById("frame"), toast = document.getElementById("toast");
+  let toastTimer;
+  const say = (text) => {
+    toast.textContent = text; toast.classList.add("on");
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => toast.classList.remove("on"), 2800);
+  };
+
+  function render(reseed) {
+    document.documentElement.dataset.theme = state.page;
+    frame.dataset.width = state.width;
+    document.querySelectorAll(".seg").forEach((seg) => seg.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.v === state[seg.dataset.key]))));
+    const c = config();
+    document.getElementById("yaml").textContent = Object.entries(c).map(([k, v]) => `${k}: ${v}`).join("\n");
+    if (!customElements.get("hacf-forum-card")) return;
+    if (reseed) seedSeen();
+    const card = document.createElement("hacf-forum-card");
+    card.setConfig(c);
+    card.hass = hass();
+    // Les liens du forum ne sont pas suivis dans la démo
+    card.addEventListener("click", (ev) => {
+      if (ev.composedPath().some((n) => n.tagName === "A")) {
+        ev.preventDefault();
+        say("Démo : dans Home Assistant, ce lien ouvre le forum dans un nouvel onglet.");
+      }
+    });
+    frame.replaceChildren(card);
+  }
+
+  document.querySelectorAll(".seg").forEach((seg) => seg.addEventListener("click", (ev) => {
+    const b = ev.target.closest("button");
+    if (!b) return;
+    state[seg.dataset.key] = b.dataset.v;
+    try { localStorage.setItem("hacf-forum-demo", JSON.stringify(state)); } catch (e) { /* ignoré */ }
+    render(seg.dataset.key === "news");
+  }));
+  document.getElementById("copy").addEventListener("click", async () => {
+    try { await navigator.clipboard.writeText(document.getElementById("yaml").textContent); say("Configuration copiée."); }
+    catch (e) { say("Copie impossible : sélectionnez le texte à la main."); }
+  });
+  render(true);
+})();
+</script>
+</body>
+</html>

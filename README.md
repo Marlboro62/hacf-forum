@@ -32,6 +32,8 @@ Intégration et carte **non officielles** pour suivre le [forum HACF](https://fo
 
 > Ce projet n'est pas affilié à HACF. Il lit les pages publiques du forum et, si vous le choisissez, vos notifications avec un accès en lecture seule que vous pouvez retirer à tout moment.
 
+🎮 **[Essayer la démo en ligne](https://marlboro62.github.io/hacf-forum/docs/demo.html)** : la vraie carte avec des sujets, des membres et des notifications fictifs, sans installer Home Assistant (sombre ou clair, trois langues, compte relié ou non).
+
 ## Fonctionnalités
 
 - **Derniers sujets** : tout le forum ou une catégorie au choix, avec la catégorie, les réponses, les vues, les « j'aime », l'heure et l'auteur du dernier message. Les sujets actifs depuis votre dernière visite sont marqués **nouveau**.
