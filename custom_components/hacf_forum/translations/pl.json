@@ -66,12 +66,14 @@
         "data": {
           "category": "Śledzona kategoria",
           "topics": "Liczba tematów",
-          "scan_minutes": "Częstotliwość aktualizacji"
+          "scan_minutes": "Częstotliwość aktualizacji",
+          "news": "Aktualności z hacf.fr"
         },
         "data_description": {
           "category": "„—”: całe forum.",
           "topics": "Tematy zachowane na każdej liście (5 do 50).",
-          "scan_minutes": "W minutach (minimum 5, aby oszczędzać forum)."
+          "scan_minutes": "W minutach (minimum 5, aby oszczędzać forum).",
+          "news": "Artykuły z działu „Aktualności” na hacf.fr, odczytywane co 3 godziny."
         }
       },
       "account": {
@@ -136,6 +138,20 @@
           },
           "forum_url": {
             "name": "Link do forum"
+          }
+        }
+      },
+      "news": {
+        "name": "Aktualności hacf.fr",
+        "state_attributes": {
+          "articles": {
+            "name": "Artykuły"
+          },
+          "last_title": {
+            "name": "Ostatni artykuł"
+          },
+          "news_url": {
+            "name": "Link do aktualności"
           }
         }
       }

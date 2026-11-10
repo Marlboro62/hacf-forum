@@ -66,12 +66,14 @@
         "data": {
           "category": "Followed category",
           "topics": "Number of topics",
-          "scan_minutes": "Update interval"
+          "scan_minutes": "Update interval",
+          "news": "Articles from hacf.fr"
         },
         "data_description": {
           "category": "“—”: the whole forum.",
           "topics": "Topics kept in each list (5 to 50).",
-          "scan_minutes": "In minutes (at least 5, to spare the forum)."
+          "scan_minutes": "In minutes (at least 5, to spare the forum).",
+          "news": "Articles from the “News” section of hacf.fr, read every 3 hours."
         }
       },
       "account": {
@@ -136,6 +138,20 @@
           },
           "forum_url": {
             "name": "Forum link"
+          }
+        }
+      },
+      "news": {
+        "name": "hacf.fr news",
+        "state_attributes": {
+          "articles": {
+            "name": "Articles"
+          },
+          "last_title": {
+            "name": "Latest article"
+          },
+          "news_url": {
+            "name": "News link"
           }
         }
       }

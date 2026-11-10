@@ -6,14 +6,16 @@
  * Chargée automatiquement par l'intégration : aucune ressource à ajouter.
  */
 (() => {
-const CARD_VERSION = "0.1.0";
+const CARD_VERSION = "0.2.0b1";
 const FORUM = "https://forum.hacf.fr";
+const SITE = "https://www.hacf.fr";
 
 const DEFAULTS = {
   title: "",
   show_latest: true,
   show_mine: true,
   show_notifications: true,
+  show_news: true,
   max_items: 10,
   show_avatars: true,
   theme: "v2",
@@ -32,6 +34,7 @@ const I18N = {
     missing: "Intégration HACF Forum introuvable", missing_hint: "Ajoutez-la dans Paramètres › Appareils et services › Ajouter une intégration › HACF Forum.",
     no_account: "Reliez votre compte HACF pour voir vos notifications : Paramètres › Appareils et services › HACF Forum › Configurer.",
     pinned: "Épinglé", closed: "Fermé", solved: "Résolu",
+    actus: "Actus", news_sub: "Actualités de hacf.fr", none_news: "Aucune actualité pour le moment.", author: "par",
     n: {
       mentioned: "{u} vous a mentionné", replied: "{u} a répondu", quoted: "{u} vous a cité", edited: "{u} a modifié votre message",
       liked: "{u} a aimé votre message", liked_consolidated: "{c} j'aime sur vos messages", private_message: "Message privé de {u}",
@@ -52,6 +55,7 @@ const I18N = {
     missing: "HACF Forum integration not found", missing_hint: "Add it in Settings › Devices & services › Add integration › HACF Forum.",
     no_account: "Link your HACF account to see your notifications: Settings › Devices & services › HACF Forum › Configure.",
     pinned: "Pinned", closed: "Closed", solved: "Solved",
+    actus: "News", news_sub: "hacf.fr news", none_news: "No news yet.", author: "by",
     n: {
       mentioned: "{u} mentioned you", replied: "{u} replied", quoted: "{u} quoted you", edited: "{u} edited your post",
       liked: "{u} liked your post", liked_consolidated: "{c} likes on your posts", private_message: "Private message from {u}",
@@ -72,6 +76,7 @@ const I18N = {
     missing: "Nie znaleziono integracji HACF Forum", missing_hint: "Dodaj ją w Ustawienia › Urządzenia i usługi › Dodaj integrację › HACF Forum.",
     no_account: "Połącz konto HACF, aby widzieć powiadomienia: Ustawienia › Urządzenia i usługi › HACF Forum › Konfiguruj.",
     pinned: "Przypięty", closed: "Zamknięty", solved: "Rozwiązany",
+    actus: "Aktualności", news_sub: "Aktualności hacf.fr", none_news: "Brak aktualności.", author: "autor:",
     n: {
       mentioned: "{u} wspomniał o Tobie", replied: "{u} odpowiedział", quoted: "{u} zacytował Cię", edited: "{u} edytował Twój post",
       liked: "{u} polubił Twój post", liked_consolidated: "{c} polubień Twoich postów", private_message: "Wiadomość prywatna od {u}",
@@ -96,8 +101,8 @@ const N_ICON = {
 };
 
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-// liens : seulement vers le forum (les données viennent du forum, mais on ne fait confiance qu'à son adresse)
-const safeUrl = (u) => (typeof u === "string" && u.startsWith(FORUM + "/") ? u : FORUM);
+// liens : seulement vers le forum ou le site hacf.fr (on ne fait confiance qu'à leurs adresses)
+const safeUrl = (u) => (typeof u === "string" && (u.startsWith(FORUM + "/") || u.startsWith(SITE + "/")) ? u : FORUM);
 const safeColor = (c) => (/^#[0-9a-f]{3,8}$/i.test(String(c || "")) ? c : "#8fa0b8");
 const safeImg = (u) => (typeof u === "string" && /^https:\/\/[^\s"'<>]+$/.test(u) ? u : "");
 
@@ -120,6 +125,7 @@ class HacfForumCard extends HTMLElement {
           { name: "show_latest", selector: { boolean: {} } },
           { name: "show_mine", selector: { boolean: {} } },
           { name: "show_notifications", selector: { boolean: {} } },
+          { name: "show_news", selector: { boolean: {} } },
           { name: "show_avatars", selector: { boolean: {} } },
         ] },
         { name: "max_items", selector: { number: { min: 3, max: 50, mode: "box" } } },
@@ -133,7 +139,7 @@ class HacfForumCard extends HTMLElement {
       ],
       computeLabel: (s) => ({
         title: "Titre (Forum HACF par défaut)", show_latest: "Onglet Sujets", show_mine: "Onglet Mes sujets",
-        show_notifications: "Onglet Notifications", show_avatars: "Avatars des membres", max_items: "Nombre de lignes affichées",
+        show_notifications: "Onglet Notifications", show_news: "Onglet Actus (hacf.fr)", show_avatars: "Avatars des membres", max_items: "Nombre de lignes affichées",
         theme: "Couleurs de la carte", language: "Langue",
       }[s.name] || s.name),
     };
@@ -189,6 +195,7 @@ class HacfForumCard extends HTMLElement {
       if (e.translation_key === "latest_topics") out.latest ||= id;
       else if (e.translation_key === "my_topics") out.mine ||= id;
       else if (e.translation_key === "notifications") out.notifs ||= id;
+      else if (e.translation_key === "news") out.news ||= id;
     }
     return out;
   }
@@ -204,6 +211,8 @@ class HacfForumCard extends HTMLElement {
       const map = {};
       for (const t of this._hass.states[ents.mine].attributes?.topics || []) map[t.id] = t.highest_post;
       store.set(this._seenKey("mine"), map);
+    } else if (this._tab === "news") {
+      store.set(this._seenKey("news"), Date.now());
     } else {
       store.set(this._seenKey("latest"), Date.now());
     }
@@ -247,6 +256,20 @@ class HacfForumCard extends HTMLElement {
       </div></a>`;
   }
 
+  _newsRow(a, isNew) {
+    const T = this._t();
+    const img = safeImg(a.image);
+    const thumb = img ? `<img class="th" src="${esc(img)}" alt="" loading="lazy" referrerpolicy="no-referrer">`
+      : `<span class="th th-i"><ha-icon icon="mdi:newspaper-variant-outline"></ha-icon></span>`;
+    return `<a class="row${isNew ? " new" : ""}" href="${esc(safeUrl(a.url))}" target="_blank" rel="noopener noreferrer">
+      ${thumb}
+      <div class="rb">
+        <div class="rt"><span>${esc(a.title)}</span>${isNew ? `<em>${esc(T.new_badge)}</em>` : ""}</div>
+        ${a.summary ? `<div class="sum">${esc(a.summary)}</div>` : ""}
+        <div class="rm"><span class="when">${esc(this._ago(a.published_at))}${a.author ? ` · ${esc(T.author)} ${esc(a.author)}` : ""}</span></div>
+      </div></a>`;
+  }
+
   _notifRow(n) {
     const T = this._t();
     const label = (T.n[n.type] || T.n.other).replace("{u}", n.user || "").replace("{b}", n.badge || "").replace("{c}", n.count ?? "");
@@ -286,15 +309,22 @@ class HacfForumCard extends HTMLElement {
     const newReplies = (t) => (seenMine && seenMine[t.id] !== undefined ? Math.max(0, (t.highest_post || 0) - seenMine[t.id]) : 0);
     const newMine = mineTopics.reduce((a, t) => a + newReplies(t), 0);
     const unread = Number(st(ents.notifs)?.state) || 0;
+    const news = st(ents.news)?.attributes || null;
+    const articles = news?.articles || [];
+    let seenNews = store.get(this._seenKey("news"), 0);
+    if (!seenNews && articles.length) { seenNews = Date.now(); store.set(this._seenKey("news"), seenNews); }
+    const isNewArticle = (a) => new Date(a.published_at).getTime() > seenNews;
+    const newNews = articles.filter(isNewArticle).length;
 
     const tabs = [];
     if (c.show_latest !== false) tabs.push(["latest", "mdi:forum", T.latest, newLatest]);
     if (c.show_mine !== false && mine) tabs.push(["mine", "mdi:account-voice", T.mine, newMine]);
     if (c.show_notifications !== false) tabs.push(["notifs", unread ? "mdi:bell-badge" : "mdi:bell", T.notifs, unread]);
+    if (c.show_news !== false && news) tabs.push(["news", "mdi:newspaper-variant-outline", T.actus, newNews]);
     if (!this._tab) this._tab = store.get("hacf-forum:tab", "latest");
     if (!tabs.some(([k]) => k === this._tab)) this._tab = tabs[0]?.[0] || "latest";
 
-    let body = "", link = latest.forum_url, canSee = false;
+    let body = "", link = latest.forum_url, canSee = false, sub = latest.category?.full_name || T.all;
     if (this._tab === "latest") {
       const rows = latestTopics.slice(0, max).map((t) => this._topicRow(t, isNewLatest(t)));
       body = rows.length ? rows.join("") : `<div class="none">${esc(T.none_latest)}</div>`;
@@ -303,6 +333,12 @@ class HacfForumCard extends HTMLElement {
       link = mine.forum_url;
       const rows = mineTopics.slice(0, max).map((t) => { const n = newReplies(t); return this._topicRow(t, n > 0, `+${n}`); });
       body = rows.length ? rows.join("") : `<div class="none">${esc(T.none_mine)}</div>`;
+      canSee = true;
+    } else if (this._tab === "news") {
+      link = news.news_url;
+      sub = T.news_sub;
+      const rows = articles.slice(0, max).map((a) => this._newsRow(a, isNewArticle(a)));
+      body = rows.length ? rows.join("") : `<div class="none">${esc(T.none_news)}</div>`;
       canSee = true;
     } else {
       if (!notifs) body = `<div class="none">${esc(T.no_account)}</div>`;
@@ -315,7 +351,6 @@ class HacfForumCard extends HTMLElement {
 
     const tabBar = tabs.length > 1 ? `<div class="tabs" role="tablist">${tabs.map(([k, icon, label, n]) =>
       `<button class="tab${k === this._tab ? " on" : ""}" role="tab" aria-selected="${k === this._tab}" data-tab="${k}"><ha-icon icon="${icon}"></ha-icon>${esc(label)}${n ? `<b>${n}</b>` : ""}</button>`).join("")}</div>` : "";
-    const sub = latest.category?.full_name || T.all;
     const updated = st(ents.latest)?.last_updated;
     const foot = `<div class="foot">${canSee ? `<button class="seen" data-act="seen"><ha-icon icon="mdi:check-all"></ha-icon>${esc(T.seen)}</button>` : "<span></span>"}
       <span>${esc(T.updated)} ${esc(this._ago(updated))} · ${esc(T.unofficial)}</span></div>`;
@@ -377,6 +412,10 @@ header { display: flex; align-items: center; justify-content: space-between; gap
 .rm { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; font-size: .74rem; color: var(--f-muted); }
 .rm span { display: inline-flex; align-items: center; gap: 3px; }
 .rm ha-icon { --mdc-icon-size: 13px; }
+.th { width: 76px; height: 46px; border-radius: 8px; flex: none; object-fit: cover; background: var(--f-line); }
+.th-i { display: grid; place-items: center; }
+.th-i ha-icon { --mdc-icon-size: 22px; color: var(--f-muted); }
+.sum { font-size: .76rem; color: var(--f-text); opacity: .8; line-height: 1.35; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 .cat i { width: 8px; height: 8px; border-radius: 2px; flex: none; }
 .nt { color: var(--f-text); opacity: .85; }
 .when { white-space: nowrap; }
@@ -396,7 +435,7 @@ if (!window.customCards.some((c) => c.type === "hacf-forum-card")) {
   window.customCards.push({
     type: "hacf-forum-card",
     name: "Forum HACF",
-    description: "Derniers sujets, vos sujets et vos notifications du forum HACF (intégration non officielle).",
+    description: "Derniers sujets, vos sujets et vos notifications du forum HACF, et les actualités de hacf.fr (intégration non officielle).",
     preview: true,
     documentationURL: "https://github.com/Marlboro62/hacf-forum",
   });

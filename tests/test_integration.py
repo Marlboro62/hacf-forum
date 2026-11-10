@@ -34,7 +34,24 @@ def _list(*topics: dict) -> dict:
             "topic_list": {"topics": list(topics)}}
 
 
+NEWS_RSS = """<?xml version="1.0" encoding="UTF-8"?>
+<rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/"
+     xmlns:media="http://search.yahoo.com/mrss/" version="2.0"><channel>
+<title>Actualités - Home Assistant Communauté Francophone</title>
+<item><title><![CDATA[2026.11 : de nombreuses nouveautés !]]></title>
+<description><![CDATA[<p>Cet article est une traduction de l&#39;annonce de la version 2026.11.</p>]]></description>
+<link>https://www.hacf.fr/ha-2026-11/</link><guid isPermaLink="false">abc</guid><category>Actualités</category>
+<dc:creator><![CDATA[jrvrcd]]></dc:creator><pubDate>Fri, 06 Nov 2026 09:52:14 GMT</pubDate>
+<media:content url="https://www.hacf.fr/content/images/2026/11/ha-2026-11.png" medium="image"/>
+<content:encoded><![CDATA[<p>Texte complet</p>]]></content:encoded></item>
+<item><title>Lien externe ignoré</title><link>https://exemple.com/x/</link></item>
+<item><title>Community Day 2026</title><link>https://www.hacf.fr/community-day-2026/</link>
+<pubDate>Mon, 26 Oct 2026 08:00:00 GMT</pubDate><media:content url="javascript:alert(1)" medium="image"/></item>
+</channel></rss>"""
+
+
 def _mock_public(aioclient_mock: AiohttpClientMocker) -> None:
+    aioclient_mock.get("https://www.hacf.fr/tag/news/rss/", text=NEWS_RSS)
     aioclient_mock.get(f"{F}/site.json", json=SITE)
     aioclient_mock.get(f"{F}/latest.json", json=_list(_topic(1, "Ma carte météo"), _topic(2, "Zigbee", cat=8)))
     aioclient_mock.get(f"{F}/topics/created-by/Membre.json", json=_list(_topic(10, "Mes cartes", posts=12)))
@@ -137,3 +154,35 @@ async def test_refused_key_starts_reauth(hass: HomeAssistant, aioclient_mock: Ai
     assert entry.state is ConfigEntryState.SETUP_ERROR
     flows = hass.config_entries.flow.async_progress()
     assert any(f["context"]["source"] == "reauth" for f in flows)
+
+
+async def test_news(hass: HomeAssistant, aioclient_mock: AiohttpClientMocker) -> None:
+    """Actualités de hacf.fr : articles du site seulement, liens et images vérifiés."""
+    _mock_public(aioclient_mock)
+    entry = await _setup(hass, {"username": "Membre"})
+    reg = er.async_get(hass)
+    news = hass.states.get(reg.async_get_entity_id("sensor", DOMAIN, f"{entry.entry_id}_news"))
+    assert news.state == "2026-11-06T09:52:14+00:00"
+    first, second = news.attributes["articles"]
+    assert first["title"] == "2026.11 : de nombreuses nouveautés !" and first["author"] == "jrvrcd"
+    assert first["summary"] == "Cet article est une traduction de l'annonce de la version 2026.11."
+    assert first["image"] == "https://www.hacf.fr/content/images/2026/11/ha-2026-11.png"
+    assert second["url"] == "https://www.hacf.fr/community-day-2026/" and second["image"] is None
+    assert news.attributes["last_title"] == first["title"]
+
+
+async def test_news_disabled_and_unreachable(hass: HomeAssistant, aioclient_mock: AiohttpClientMocker) -> None:
+    """Flux injoignable : le forum reste lisible ; option désactivée : pas de capteur."""
+    aioclient_mock.get("https://www.hacf.fr/tag/news/rss/", status=503)
+    aioclient_mock.get(f"{F}/site.json", json=SITE)
+    aioclient_mock.get(f"{F}/latest.json", json=_list(_topic(1, "Ma carte météo")))
+    aioclient_mock.get(f"{F}/topics/created-by/Membre.json", json=_list())
+    entry = await _setup(hass, {"username": "Membre"})
+    assert entry.state is ConfigEntryState.LOADED
+    reg = er.async_get(hass)
+    news = hass.states.get(reg.async_get_entity_id("sensor", DOMAIN, f"{entry.entry_id}_news"))
+    assert news.state == "unknown" and news.attributes["articles"] == []
+
+    hass.config_entries.async_update_entry(entry, options={"news": False})
+    await hass.async_block_till_done()
+    assert hass.states.get(reg.async_get_entity_id("sensor", DOMAIN, f"{entry.entry_id}_news")).state == "unavailable"

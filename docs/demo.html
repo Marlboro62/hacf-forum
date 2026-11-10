@@ -65,7 +65,7 @@
     <img src="../custom_components/hacf_forum/brand/icon.png" alt="">
     <div>
       <h1>Forum HACF <span class="badge" id="ver">démo</span></h1>
-      <p class="lead">La carte de l'intégration, avec des sujets, des membres et des notifications fictifs</p>
+      <p class="lead">La carte de l'intégration, avec des sujets, des membres, des notifications et des actualités fictifs</p>
     </div>
     <nav class="links">
       <a href="https://github.com/Marlboro62/hacf-forum">Dépôt GitHub</a>
@@ -104,7 +104,7 @@
     </main>
   </div>
 
-  <p class="note">Sujets, pseudos, avatars et notifications sont inventés : ils ne correspondent à aucun membre du forum. Dans Home Assistant, la carte
+  <p class="note">Sujets, pseudos, avatars, notifications et actualités sont inventés : ils ne correspondent à aucun membre du forum. Dans Home Assistant, la carte
     lit les capteurs de l'intégration, sans réglage : voir le <a href="https://github.com/Marlboro62/hacf-forum#readme">README</a>.
     Intégration non officielle, sans lien avec l'association HACF.</p>
 </div>
@@ -185,11 +185,22 @@
       { type: "private_message", read: true, user: "Alice", title: "Merci pour le tuto !", created_at: ago(3 * D), url: `${F}/latest` },
       { type: "liked_consolidated", read: true, count: 12, created_at: ago(5 * D), url: `${F}/latest` },
     ];
-    return { latest, mine, notifs };
+    const img = (k) => { const u = new URL(`news/${k}.svg`, location.href).href; return u.startsWith("https://") ? u : null; };
+    const news = [
+      { id: "n1", title: "Home Assistant 2026.11 : les nouveautés du mois", url: "https://www.hacf.fr/", published_at: ago(4 * D), author: "Équipe HACF", image: img("version"),
+        summary: "Traduction de l'annonce de la nouvelle version : tableaux de bord, énergie et de nombreuses intégrations améliorées." },
+      { id: "n2", title: "Rencontres de la communauté : retrouvons-nous près de chez vous", url: "https://www.hacf.fr/", published_at: ago(15 * D), author: "Équipe HACF", image: img("rencontre"),
+        summary: "Des rendez-vous locaux pour échanger sur la domotique, partager ses projets et aider les nouveaux venus." },
+      { id: "n3", title: "La lettre d'information du mois", url: "https://www.hacf.fr/", published_at: ago(32 * D), author: "Équipe HACF", image: img("newsletter"),
+        summary: "Les temps forts du mois écoulé, traduits en français." },
+      { id: "n4", title: "Bien sécuriser l'accès à distance à Home Assistant", url: "https://www.hacf.fr/", published_at: ago(47 * D), author: "Équipe HACF", image: img("securite"),
+        summary: "Les bonnes pratiques pour ouvrir Home Assistant sur Internet sans prendre de risques." },
+    ];
+    return { latest, mine, notifs, news };
   }
 
   function hass() {
-    const { latest, mine, notifs } = data(), st = {}, ent = {};
+    const { latest, mine, notifs, news } = data(), st = {}, ent = {};
     const add = (eid, s, attrs, key) => {
       st[eid] = { entity_id: eid, state: String(s), attributes: attrs, last_updated: ago(1 * M) };
       ent[eid] = { entity_id: eid, platform: "hacf_forum", translation_key: key };
@@ -199,6 +210,7 @@
     if (state.account === "linked") {
       add("sensor.forum_hacf_notifications", notifs.filter((n) => !n.read).length, { notifications: notifs, forum_url: `${F}/latest` }, "notifications");
     }
+    add("sensor.forum_hacf_actualites_hacf_fr", news[0].published_at, { articles: news, last_title: news[0].title, news_url: "https://www.hacf.fr/tag/news/" }, "news");
     return { states: st, entities: ent, themes: { darkMode: state.page === "dark" }, language: "fr", locale: { language: "fr" } };
   }
 
@@ -209,9 +221,11 @@
       if (state.news === "news") {
         localStorage.setItem("hacf-forum:seen:latest", JSON.stringify(Date.now() - 1 * H));
         localStorage.setItem("hacf-forum:seen:mine", JSON.stringify(Object.fromEntries(mine.map((t, i) => [t.id, t.highest_post - [3, 1, 0][i]]))));
+        localStorage.setItem("hacf-forum:seen:news", JSON.stringify(Date.now() - 10 * D));
       } else {
         localStorage.setItem("hacf-forum:seen:latest", JSON.stringify(Date.now()));
         localStorage.setItem("hacf-forum:seen:mine", JSON.stringify(Object.fromEntries(mine.map((t) => [t.id, t.highest_post]))));
+        localStorage.setItem("hacf-forum:seen:news", JSON.stringify(Date.now()));
       }
     } catch (e) { /* stockage indisponible : la carte considère tout comme vu */ }
   }

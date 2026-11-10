@@ -66,12 +66,14 @@
         "data": {
           "category": "Catégorie suivie",
           "topics": "Nombre de sujets",
-          "scan_minutes": "Fréquence de mise à jour"
+          "scan_minutes": "Fréquence de mise à jour",
+          "news": "Actualités du site hacf.fr"
         },
         "data_description": {
           "category": "« — » : tout le forum.",
           "topics": "Sujets gardés dans chaque liste (5 à 50).",
-          "scan_minutes": "En minutes (5 minimum, pour ménager le forum)."
+          "scan_minutes": "En minutes (5 minimum, pour ménager le forum).",
+          "news": "Articles de la rubrique « Actualités » de hacf.fr, relus toutes les 3 heures."
         }
       },
       "account": {
@@ -136,6 +138,20 @@
           },
           "forum_url": {
             "name": "Lien du forum"
+          }
+        }
+      },
+      "news": {
+        "name": "Actualités hacf.fr",
+        "state_attributes": {
+          "articles": {
+            "name": "Articles"
+          },
+          "last_title": {
+            "name": "Dernier article"
+          },
+          "news_url": {
+            "name": "Lien des actualités"
           }
         }
       }

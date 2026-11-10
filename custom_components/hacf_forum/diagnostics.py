@@ -20,6 +20,7 @@ async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry: ForumCo
         "counts": {
             "latest": len(data.get("latest", [])), "mine": len(data.get("mine", [])),
             "notifications": len(data.get("notifications", [])), "unread": data.get("unread"),
+            "news": len(data.get("news", [])),
         },
         "category": data.get("category"),
     }

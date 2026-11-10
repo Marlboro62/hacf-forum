@@ -15,14 +15,19 @@ from .api import ForumAuthError, ForumClient, ForumError
 from .const import (
     BASE_URL,
     CONF_CATEGORY,
+    CONF_NEWS,
     CONF_SCAN_MINUTES,
     CONF_TOPICS,
     CONF_USERNAME,
     DEFAULT_SCAN_MINUTES,
+    DEFAULT_NEWS,
     DEFAULT_TOPICS,
     DOMAIN,
     MIN_SCAN_MINUTES,
+    NEWS_HOURS,
+    NEWS_ITEMS,
 )
+from .news import parse_feed
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -60,6 +65,10 @@ class ForumCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self.client = client
         self._categories: dict[int, dict[str, Any]] = {}
         self._categories_at = 0.0
+        self._news: list[dict[str, Any]] = []
+        self._news_at = 0.0
+        self._news_etag: str | None = None
+        self._news_modified: str | None = None
 
     @property
     def username(self) -> str | None:
@@ -68,6 +77,25 @@ class ForumCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     @property
     def has_account(self) -> bool:
         return self.client.has_key
+
+    @property
+    def news_enabled(self) -> bool:
+        return bool(self.config_entry.options.get(CONF_NEWS, DEFAULT_NEWS))
+
+    async def news(self) -> list[dict[str, Any]]:
+        """Actualités de hacf.fr, relues toutes les 3 heures ; en cas d'échec, la liste précédente est gardée."""
+        if self._news_at and time.monotonic() - self._news_at < NEWS_HOURS * 3600:
+            return self._news
+        self._news_at = time.monotonic()
+        try:
+            body, self._news_etag, self._news_modified = await self.client.news_feed(self._news_etag, self._news_modified)
+            if body is not None:
+                self._news = await self.hass.async_add_executor_job(parse_feed, body, NEWS_ITEMS)
+        except (ForumError, ValueError) as err:
+            _LOGGER.debug("Actualités de hacf.fr illisibles : %s", err)
+            # nouvel essai dans 30 minutes
+            self._news_at = time.monotonic() - NEWS_HOURS * 3600 + 1800
+        return self._news
 
     async def categories(self) -> dict[int, dict[str, Any]]:
         """Catégories par identifiant : nom (avec le parent), couleur, lien."""
@@ -167,6 +195,8 @@ class ForumCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 result["mine"] = self._topics(await self.client.created_by(self.username), cats, limit)
         except ForumError as err:
             raise UpdateFailed(f"Forum HACF injoignable : {err}") from err
+        if self.news_enabled:
+            result["news"] = await self.news()
         if self.has_account:
             try:
                 me = await self.client.current_user()

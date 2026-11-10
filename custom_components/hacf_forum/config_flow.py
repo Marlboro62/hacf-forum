@@ -25,10 +25,12 @@ from .const import (
     BASE_URL,
     CONF_CATEGORY,
     CONF_CLIENT_ID,
+    CONF_NEWS,
     CONF_SCAN_MINUTES,
     CONF_TOPICS,
     CONF_USER_API_KEY,
     CONF_USERNAME,
+    DEFAULT_NEWS,
     DEFAULT_SCAN_MINUTES,
     DEFAULT_TOPICS,
     DOMAIN,
@@ -215,6 +217,7 @@ class HacfForumOptionsFlow(AccountSteps, OptionsFlow):
                 selector.NumberSelectorConfig(min=MIN_SCAN_MINUTES, max=120, step=1, mode=selector.NumberSelectorMode.BOX,
                                               unit_of_measurement="min")
             ),
+            vol.Optional(CONF_NEWS, default=bool(opts.get(CONF_NEWS, DEFAULT_NEWS))): selector.BooleanSelector(),
         })
         return self.async_show_form(step_id="settings", data_schema=schema)
 

@@ -47,6 +47,7 @@ Intégration et carte **non officielles** pour suivre le [forum HACF](https://fo
 - **Derniers sujets** : tout le forum ou une catégorie au choix, avec la catégorie, les réponses, les vues, les « j'aime », l'heure et l'auteur du dernier message. Les sujets actifs depuis votre dernière visite sont marqués **nouveau**.
 - **Mes sujets** : les sujets ouverts par votre pseudo, avec le nombre de **nouvelles réponses** (+3) depuis votre dernière visite.
 - **Notifications** (compte relié, facultatif) : mentions, réponses, citations, « j'aime », messages privés, badges… Les non lues sont mises en avant, leur nombre s'affiche sur l'onglet.
+- **Actus** : les articles de la rubrique [Actualités du site hacf.fr](https://www.hacf.fr/tag/news/) (nouvelles versions, événements, newsletters), avec image, résumé et date. Les nouveaux articles depuis votre dernière visite sont marqués **nouveau**.
 - Un clic sur une ligne ouvre le sujet ou le message sur le forum, dans un nouvel onglet.
 - **La carte s'installe avec l'intégration** : aucune ressource à ajouter dans les tableaux de bord.
 - Interface en **français**, **anglais** et **polonais** (langue de Home Assistant).
@@ -86,7 +87,7 @@ Elle trouve seule les capteurs de l'intégration. Elle est aussi proposée dans 
 | Option | Rôle | Défaut |
 | --- | --- | --- |
 | `title` | Titre | `Forum HACF` |
-| `show_latest`, `show_mine`, `show_notifications` | Onglets affichés | `true` |
+| `show_latest`, `show_mine`, `show_notifications`, `show_news` | Onglets affichés | `true` |
 | `max_items` | Nombre de lignes par onglet | `10` |
 | `show_avatars` | Avatar de l'auteur du dernier message | `true` |
 | `theme` | `v2` (bleu nuit), `auto` (clair si Home Assistant est en mode clair) ou `ha` (thème de Home Assistant) | `v2` |
@@ -101,6 +102,7 @@ Le bouton **Tout marquer comme vu** remet à zéro les « nouveau » et « +N »
 - **Catégorie suivie** pour les derniers sujets (« — » : tout le forum) ;
 - **Nombre de sujets** gardés (5 à 50, 20 par défaut) ;
 - **Fréquence de mise à jour** (10 minutes par défaut, 5 au minimum pour ménager le forum) ;
+- **Actualités du site hacf.fr** (activé par défaut) : le flux est relu toutes les 3 heures ;
 - **Relier** ou **délier** votre compte.
 
 ## Capteurs
@@ -110,14 +112,15 @@ Le bouton **Tout marquer comme vu** remet à zéro les « nouveau » et « +N »
 | Derniers sujets | Sujets actifs ces dernières 24 heures | `topics`, `category`, `forum_url` |
 | Mes sujets | Nombre de vos sujets | `topics`, `username`, `forum_url` |
 | Notifications | Notifications non lues | `notifications`, `account`, `forum_url` |
+| Actualités hacf.fr | Date du dernier article | `articles`, `last_title`, `news_url` |
 
-Les listes (`topics`, `notifications`) ne sont pas enregistrées dans l'historique de Home Assistant. Le capteur **Notifications** peut servir à une automatisation (par exemple, une notification sur le téléphone quand il augmente).
+Les listes (`topics`, `notifications`, `articles`) ne sont pas enregistrées dans l'historique de Home Assistant. Le capteur **Notifications** peut servir à une automatisation (par exemple, une notification sur le téléphone quand il augmente), tout comme **Actualités hacf.fr**, qui change à chaque nouvel article.
 
 ## Vie privée
 
-- Seul votre Home Assistant contacte `forum.hacf.fr`, toutes les 10 minutes par défaut.
+- Seul votre Home Assistant contacte `forum.hacf.fr`, toutes les 10 minutes par défaut, et `www.hacf.fr` (actualités) toutes les 3 heures.
 - La clé du compte reste dans Home Assistant ; elle est retirée des **diagnostics**, comme votre pseudo.
-- Les avatars sont chargés depuis le forum par votre navigateur.
+- Les avatars et les images des articles sont chargés depuis le forum et le site par votre navigateur.
 
 ## Signaler un problème
 

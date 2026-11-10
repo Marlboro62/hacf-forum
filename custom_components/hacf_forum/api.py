@@ -8,6 +8,10 @@ from urllib.parse import quote
 import aiohttp
 
 from .const import BASE_URL, VERSION
+from .news import NEWS_FEED
+
+# Flux des actualités : plusieurs centaines de Ko (articles complets) ; au-delà de 8 Mo, refusé
+NEWS_MAX_BYTES = 8 * 1024 * 1024
 
 
 class ForumError(Exception):
@@ -84,3 +88,24 @@ class ForumClient:
     async def notifications(self) -> dict[str, Any]:
         """Notifications du membre connecté."""
         return await self._get("/notifications.json", auth=True)
+
+    async def news_feed(self, etag: str | None = None, modified: str | None = None) -> tuple[bytes | None, str | None, str | None]:
+        """Flux RSS des actualités de hacf.fr ; None si inchangé depuis la dernière lecture (HTTP 304)."""
+        headers = {"Accept": "application/rss+xml, application/xml", "User-Agent": f"HomeAssistant-HACF-Forum/{VERSION}"}
+        if etag:
+            headers["If-None-Match"] = etag
+        if modified:
+            headers["If-Modified-Since"] = modified
+        try:
+            async with asyncio.timeout(30):
+                resp = await self._session.get(NEWS_FEED, headers=headers)
+                if resp.status == 304:
+                    return None, etag, modified
+                if resp.status != 200:
+                    raise ForumError(f"HTTP {resp.status} sur le flux des actualités")
+                body = await resp.content.read(NEWS_MAX_BYTES + 1)
+                if len(body) > NEWS_MAX_BYTES:
+                    raise ForumError("flux des actualités trop volumineux")
+                return body, resp.headers.get("ETag"), resp.headers.get("Last-Modified")
+        except (aiohttp.ClientError, TimeoutError) as err:
+            raise ForumError(f"{type(err).__name__} sur le flux des actualités") from err

@@ -4,7 +4,7 @@ from __future__ import annotations
 from typing import Final
 
 DOMAIN: Final = "hacf_forum"
-VERSION: Final = "0.1.0"
+VERSION: Final = "0.2.0b1"
 
 BASE_URL: Final = "https://forum.hacf.fr"
 
@@ -14,10 +14,15 @@ CONF_CLIENT_ID: Final = "client_id"
 CONF_CATEGORY: Final = "category"
 CONF_TOPICS: Final = "topics"
 CONF_SCAN_MINUTES: Final = "scan_minutes"
+CONF_NEWS: Final = "news"
 
 DEFAULT_TOPICS: Final = 20
 DEFAULT_SCAN_MINUTES: Final = 10
 MIN_SCAN_MINUTES: Final = 5
+DEFAULT_NEWS: Final = True
+# Actualités de hacf.fr : quelques articles par mois, flux relu toutes les 3 heures
+NEWS_HOURS: Final = 3
+NEWS_ITEMS: Final = 15
 
 # Fichier de la carte, servi par Home Assistant et chargé dans l'interface
 CARD_URL: Final = f"/{DOMAIN}/hacf-forum-card.js"

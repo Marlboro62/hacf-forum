@@ -4,7 +4,7 @@ from __future__ import annotations
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
-from homeassistant.components.sensor import SensorEntity, SensorStateClass
+from homeassistant.components.sensor import SensorDeviceClass, SensorEntity, SensorStateClass
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -14,6 +14,7 @@ from homeassistant.util import dt as dt_util
 from . import ForumConfigEntry
 from .const import BASE_URL, DOMAIN, VERSION
 from .coordinator import ForumCoordinator
+from .news import NEWS_PAGE
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ForumConfigEntry, async_add_entities: AddEntitiesCallback) -> None:
@@ -23,13 +24,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ForumConfigEntry, async_
         entities.append(MyTopicsSensor(coordinator))
     if coordinator.has_account:
         entities.append(NotificationsSensor(coordinator))
+    if coordinator.news_enabled:
+        entities.append(NewsSensor(coordinator))
     async_add_entities(entities)
 
 
 class ForumEntity(CoordinatorEntity[ForumCoordinator], SensorEntity):
     _attr_has_entity_name = True
     # listes destinées à la carte : pas d'historique dans la base de Home Assistant
-    _unrecorded_attributes = frozenset({"topics", "notifications", "category"})
+    _unrecorded_attributes = frozenset({"topics", "notifications", "category", "articles"})
 
     def __init__(self, coordinator: ForumCoordinator, key: str) -> None:
         super().__init__(coordinator)
@@ -116,3 +119,25 @@ class NotificationsSensor(ForumEntity):
     def extra_state_attributes(self) -> dict[str, Any]:
         return {"notifications": self.coordinator.data.get("notifications", []), "account": self.coordinator.data.get("account"),
                 "forum_url": f"{BASE_URL}/my/notifications"}
+
+
+class NewsSensor(ForumEntity):
+    """Date du dernier article de la rubrique Actualités de hacf.fr ; derniers articles."""
+
+    _attr_icon = "mdi:newspaper-variant-outline"
+    _attr_device_class = SensorDeviceClass.TIMESTAMP
+
+    def __init__(self, coordinator: ForumCoordinator) -> None:
+        super().__init__(coordinator, "news")
+
+    @property
+    def native_value(self) -> datetime | None:
+        for article in self.coordinator.data.get("news", []):
+            if when := dt_util.parse_datetime(article.get("published_at") or ""):
+                return when
+        return None
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        news = self.coordinator.data.get("news", [])
+        return {"articles": news, "last_title": news[0]["title"] if news else None, "news_url": NEWS_PAGE}
