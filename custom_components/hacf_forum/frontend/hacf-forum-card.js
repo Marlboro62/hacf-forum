@@ -8,7 +8,7 @@
  * © 2026 Marlboro62. Tous droits réservés : copie, diffusion et modification interdites sans accord écrit (voir LICENSE).
  */
 (() => {
-const CARD_VERSION = "0.3.1b1";
+const CARD_VERSION = "0.3.1b2";
 const FORUM = "https://forum.hacf.fr";
 const SITE = "https://www.hacf.fr";
 
@@ -397,9 +397,11 @@ class HacfForumCard extends HTMLElement {
         const last = rows[Math.min(max, rows.length) - 1];
         const h = last.offsetTop + last.offsetHeight + 2;  // .list.scroll est positionnée : offsetTop relatif à la liste
         if (!(h > 2)) return;  // pas encore affichée : la mesure se fera plus tard
-        // sur un téléphone, les titres passent sur deux lignes : la liste ne dépasse pas 60 % de l'écran,
-        // pour que le bas de la carte (« Tout marquer comme vu ») reste accessible
-        const cap = Math.max(240, Math.round(window.innerHeight * 0.6));
+        // téléphone seulement (écran étroit ou peu haut) : les titres passent sur deux lignes, la liste ne dépasse pas
+        // 60 % de l'écran pour que le bas de la carte (« Tout marquer comme vu ») reste accessible ;
+        // tablette et ordinateur gardent leurs « max » lignes (en bas de la liste, le défilement passe à la page)
+        const small = window.innerWidth < 600 || window.innerHeight < 500;
+        const cap = small ? Math.max(240, Math.round(window.innerHeight * 0.6)) : Infinity;
         if (rows.length > max || h > cap) want = `${Math.min(h, cap)}px`;
       }
       if (list.style.maxHeight !== want) list.style.maxHeight = want;
@@ -459,7 +461,8 @@ header { display: flex; align-items: center; justify-content: space-between; gap
 .tab b { min-width: 18px; padding: 0 5px; border-radius: 9px; background: var(--f-new); color: #1a2434; font-size: .7rem; line-height: 18px; text-align: center; }
 .tab:focus-visible, .seen:focus-visible, .row:focus-visible { outline: 2px solid var(--f-accent); outline-offset: 2px; }
 .list { display: flex; flex-direction: column; gap: 6px; padding: 0 12px; }
-.list.scroll:not(.fitted) { max-height: min(calc(var(--f-rows, 10) * 60px), 60vh); }
+.list.scroll:not(.fitted) { max-height: calc(var(--f-rows, 10) * 60px); }
+@media (max-width: 599px), (max-height: 499px) { .list.scroll:not(.fitted) { max-height: min(calc(var(--f-rows, 10) * 60px), 60vh); } }
 .list.scroll { overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--f-line) transparent; position: relative; }
 .acts { display: inline-flex; gap: 6px; flex-wrap: wrap; }
 .below { display: inline-flex; align-items: center; gap: 4px; background: none; border: 1px solid var(--f-new); color: var(--f-new);
