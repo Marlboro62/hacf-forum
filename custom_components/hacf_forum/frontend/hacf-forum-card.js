@@ -4,6 +4,8 @@
  * Affiche les capteurs de l'intégration HACF Forum (non officielle) : derniers sujets du forum de la
  * communauté francophone de Home Assistant, sujets du membre et notifications du compte relié.
  * Chargée automatiquement par l'intégration : aucune ressource à ajouter.
+ *
+ * © 2026 Marlboro62. Tous droits réservés : copie, diffusion et modification interdites sans accord écrit (voir LICENSE).
  */
 (() => {
 const CARD_VERSION = "0.3.0b2";

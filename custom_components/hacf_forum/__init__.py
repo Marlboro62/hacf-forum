@@ -1,4 +1,7 @@
-"""HACF Forum : sujets et notifications du forum de la communauté francophone de Home Assistant."""
+"""HACF Forum : sujets et notifications du forum de la communauté francophone de Home Assistant.
+
+© 2026 Marlboro62. Tous droits réservés : copie, diffusion et modification interdites sans accord écrit (voir LICENSE).
+"""
 from __future__ import annotations
 
 import logging

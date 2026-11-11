@@ -152,6 +152,15 @@ Détail de chaque version : [releases](https://github.com/Marlboro62/hacf-forum/
 
 Ouvrez une [issue GitHub](https://github.com/Marlboro62/hacf-forum/issues), avec les **diagnostics** de l'intégration (téléchargeables depuis sa page). Ne collez jamais le texte affiché par le forum lors de l'autorisation.
 
-## Licence
+## Licence et droits d'auteur
 
-MIT. Le nom HACF désigne le forum suivi ; ce projet n'est ni produit ni validé par HACF.
+**© 2026 Marlboro62. Tous droits réservés.** Marlboro62 est l'auteur et le **seul titulaire** de ce projet : code, carte, textes, documentation, images et icônes.
+
+- ✅ **Autorisé** : installer et utiliser gratuitement l'intégration et la carte dans votre propre Home Assistant, pour un usage personnel ; signaler un problème ou proposer une idée dans les [issues](https://github.com/Marlboro62/hacf-forum/issues).
+- ⛔ **Interdit sans mon accord écrit** : copier, partager, diffuser ou republier le projet ailleurs que depuis ce dépôt, le modifier ou en faire une version dérivée, le reprendre comme modèle, ou l'utiliser à des fins commerciales.
+
+Ces interdictions s'appliquent à toute personne, association ou organisation, **y compris l'association HACF**, qui ne peut ni copier, ni reprendre, ni modifier, ni diffuser ce projet sans mon accord écrit.
+
+Conditions complètes : [LICENSE](LICENSE). Les versions publiées jusqu'à la 0.3.0b2 incluse restent sous licence MIT.
+
+Le nom HACF désigne le forum suivi : ce projet est indépendant, il n'est ni produit ni validé par l'association HACF.

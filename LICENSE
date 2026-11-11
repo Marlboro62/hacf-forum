@@ -1,21 +1,46 @@
-MIT License
+Copyright © 2026 Marlboro62. Tous droits réservés.
 
-Copyright (c) 2026 Marlboro62
+HACF Forum (intégration et carte pour Home Assistant)
+https://github.com/Marlboro62/hacf-forum
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+Marlboro62 est l'auteur et le seul titulaire de l'ensemble des droits sur ce projet : code source,
+carte, textes, documentation, images, captures, logos et icônes.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+1. Ce qui est autorisé
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+   Toute personne peut, gratuitement, télécharger et installer ce projet (par la Marketplace de
+   Home Assistant, anciennement HACS, ou depuis ce dépôt) et l'utiliser dans sa propre installation
+   de Home Assistant, pour un usage personnel et non commercial.
+
+   Il est aussi possible de consulter le code sur GitHub, de signaler un problème ou de proposer une
+   idée par les issues du dépôt, et de proposer une contribution par une pull request ; une
+   contribution acceptée est cédée à l'auteur et intégrée au projet sous les présentes conditions.
+
+2. Ce qui est interdit sans l'accord écrit et préalable de l'auteur
+
+   - copier, reproduire ou republier tout ou partie du projet, sous quelque forme que ce soit ;
+   - le partager, le diffuser ou le distribuer ailleurs que depuis ce dépôt ;
+   - le modifier, l'adapter, le traduire ou en créer une version dérivée ;
+   - le reprendre comme modèle ou en réutiliser le code, la carte, les textes, les images ou la
+     présentation dans un autre projet ;
+   - l'utiliser à des fins commerciales.
+
+   Ces interdictions s'appliquent à toute personne, association ou organisation, y compris
+   l'association HACF (Home Assistant Communauté Francophone), qui ne peut ni copier, ni reprendre,
+   ni modifier, ni diffuser ce projet sans l'accord écrit de l'auteur.
+
+3. Garantie
+
+   Le projet est fourni « tel quel », sans garantie d'aucune sorte. L'auteur ne peut être tenu
+   responsable d'aucun dommage lié à son utilisation.
+
+4. Versions antérieures
+
+   Les versions publiées avant le 11 novembre 2026 (jusqu'à la 0.3.0b2 incluse) l'ont été sous la
+   licence MIT, qui reste valable pour ces versions-là. Les présentes conditions s'appliquent à toutes
+   les versions suivantes.
+
+Le nom HACF désigne le forum suivi : ce projet est indépendant, il n'est ni produit ni validé par
+l'association HACF.
+
+Pour toute demande d'autorisation : https://github.com/Marlboro62/hacf-forum/issues
