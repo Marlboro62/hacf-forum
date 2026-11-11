@@ -8,7 +8,7 @@
  * © 2026 Marlboro62. Tous droits réservés : copie, diffusion et modification interdites sans accord écrit (voir LICENSE).
  */
 (() => {
-const CARD_VERSION = "0.3.1b2";
+const CARD_VERSION = "0.3.1b3";
 const FORUM = "https://forum.hacf.fr";
 const SITE = "https://www.hacf.fr";
 
@@ -114,6 +114,37 @@ const store = {
   set(k, v) { try { window.localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* stockage indisponible */ } },
 };
 
+/** « Vu » partagé entre les appareils : données utilisateur de Home Assistant (frontend/*_user_data),
+ *  propres à chaque compte HA ; le stockage local du navigateur sert de cache et de secours. */
+const SEEN_KINDS = ["latest", "mine", "news"];
+const SEEN_KEY = "hacf_forum_seen";
+const seenSync = {
+  conn: null,
+  cards: new Set(),
+  start(hass) {
+    const conn = hass?.connection;
+    if (!conn || conn === this.conn) return;
+    this.conn = conn;
+    const apply = (value) => {
+      if (!value || typeof value !== "object") return;
+      // la version la plus récente gagne : un « vu » fait ici, pas encore envoyé, n'est pas écrasé
+      if ((Number(value.at) || 0) < store.get("hacf-forum:seen:at", 0)) return;
+      for (const k of SEEN_KINDS) if (value[k] != null) store.set(`hacf-forum:seen:${k}`, value[k]);
+      store.set("hacf-forum:seen:at", Number(value.at) || 0);
+      for (const card of this.cards) { card._sig = null; card._render(); }
+    };
+    // lecture au démarrage, puis mises à jour en direct quand un autre appareil marque comme vu
+    hass.callWS({ type: "frontend/get_user_data", key: SEEN_KEY }).then((r) => apply(r?.value)).catch(() => {});
+    conn.subscribeMessage((msg) => apply(msg?.value), { type: "frontend/subscribe_user_data", key: SEEN_KEY }).catch(() => {});
+  },
+  push(hass) {
+    const value = { at: Date.now() };
+    for (const k of SEEN_KINDS) value[k] = store.get(`hacf-forum:seen:${k}`, null);
+    store.set("hacf-forum:seen:at", value.at);
+    hass?.callWS({ type: "frontend/set_user_data", key: SEEN_KEY, value }).catch(() => { /* HA trop ancien : reste local */ });
+  },
+};
+
 class HacfForumCard extends HTMLElement {
   static getStubConfig() {
     return {};
@@ -171,10 +202,12 @@ class HacfForumCard extends HTMLElement {
 
   set hass(hass) {
     this._hass = hass;
+    seenSync.start(hass);
     this._render();
   }
 
   connectedCallback() {
+    seenSync.cards.add(this);
     clearInterval(this._tick);
     this._tick = setInterval(() => { this._sig = null; this._render(); }, 60000);
     // carte rattachée à la page (changement de vue) : refaire la mesure de la liste
@@ -182,6 +215,7 @@ class HacfForumCard extends HTMLElement {
   }
 
   disconnectedCallback() {
+    seenSync.cards.delete(this);
     clearInterval(this._tick);
     this._fitObs?.disconnect();
   }
@@ -229,6 +263,7 @@ class HacfForumCard extends HTMLElement {
     } else {
       store.set(this._seenKey("latest"), Date.now());
     }
+    seenSync.push(this._hass);  // les autres appareils du même compte HA le reçoivent aussitôt
   }
 
   _ago(iso) {

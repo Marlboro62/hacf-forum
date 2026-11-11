@@ -96,7 +96,7 @@ Elle trouve seule les capteurs de l'intégration. Elle est aussi proposée dans 
 | `theme` | `v2` (bleu nuit), `auto` (clair si Home Assistant est en mode clair) ou `ha` (thème de Home Assistant) | `v2` |
 | `language` | `auto`, `fr`, `en` ou `pl` | `auto` |
 
-Le bouton **Tout marquer comme vu** remet à zéro les « nouveau » et « +N » de l'onglet affiché (mémorisés dans le navigateur). Quand des nouveautés sont plus bas dans la liste, le bouton **↓ N nouveau(x) plus bas** y descend directement.
+Le bouton **Tout marquer comme vu** remet à zéro les « nouveau » et « +N » de l'onglet affiché (mémorisés dans votre compte Home Assistant : ce que vous marquez comme vu sur la tablette l'est aussi sur le téléphone, si vous êtes connecté avec le même utilisateur HA). Quand des nouveautés sont plus bas dans la liste, le bouton **↓ N nouveau(x) plus bas** y descend directement.
 
 Le nombre de sujets lus sur le forum se règle dans les options de l'intégration (**Nombre de sujets**, 20 par défaut) : augmentez-le si vous voulez faire défiler plus loin.
 
@@ -128,6 +128,10 @@ Les listes (`topics`, `notifications`, `articles`) ne sont pas enregistrées dan
 - Les avatars et les images des articles sont chargés depuis le forum et le site par votre navigateur.
 
 ## Historique des versions
+
+### 0.3.1b3
+
+- ✨ **Ajout** : **Tout marquer comme vu** est partagé entre vos appareils (tablette, téléphone, ordinateur) connectés avec le même utilisateur Home Assistant, et mis à jour en direct. Merci @JourMic pour l'idée ([#2](https://github.com/Marlboro62/hacf-forum/issues/2)).
 
 ### 0.3.1b2
 
