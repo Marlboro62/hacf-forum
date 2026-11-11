@@ -127,6 +127,10 @@ Les listes (`topics`, `notifications`, `articles`) ne sont pas enregistrées dan
 
 ## Historique des versions
 
+### 0.3.0b2
+
+- **Correction** : à l'ouverture de la page, la liste affichait parfois tous les sujets au lieu de `max_items` lignes, jusqu'au rafraîchissement suivant (une minute). La hauteur est maintenant mesurée dès que la carte s'affiche, et recalculée quand sa largeur change.
+
 ### 0.3.0b1
 
 - **Ajout** : défilement de la liste dans la carte (option `scroll`, active par défaut). La carte garde la hauteur de `max_items` lignes et tous les sujets récupérés restent accessibles en faisant défiler ; bouton **↓ N nouveau(x) plus bas** pour aller aux nouveautés cachées. Merci @JourMic pour l'idée ([#1](https://github.com/Marlboro62/hacf-forum/issues/1)).

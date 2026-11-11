@@ -6,7 +6,7 @@
  * Chargée automatiquement par l'intégration : aucune ressource à ajouter.
  */
 (() => {
-const CARD_VERSION = "0.3.0b1";
+const CARD_VERSION = "0.3.0b2";
 const FORUM = "https://forum.hacf.fr";
 const SITE = "https://www.hacf.fr";
 
@@ -175,10 +175,13 @@ class HacfForumCard extends HTMLElement {
   connectedCallback() {
     clearInterval(this._tick);
     this._tick = setInterval(() => { this._sig = null; this._render(); }, 60000);
+    // carte rattachée à la page (changement de vue) : refaire la mesure de la liste
+    if (this._hass) { this._sig = null; this._render(); }
   }
 
   disconnectedCallback() {
     clearInterval(this._tick);
+    this._fitObs?.disconnect();
   }
 
   getCardSize() {
@@ -372,24 +375,33 @@ class HacfForumCard extends HTMLElement {
     const below = scroll && hidden ? `<button class="below" data-act="below"><ha-icon icon="mdi:arrow-down"></ha-icon><span>${esc(T.below.replace("{n}", hidden))}</span></button>` : "";
     const foot = `<div class="foot"><span class="acts">${canSee ? `<button class="seen" data-act="seen"><ha-icon icon="mdi:check-all"></ha-icon>${esc(T.seen)}</button>` : ""}${below}</span>
       <span>${esc(T.updated)} ${esc(this._ago(updated))} · ${esc(T.unofficial)}</span></div>`;
-    this._card(tabBar + `<div class="list${scroll ? " scroll" : ""}">${body}</div>` + foot, c.title || T.title, sub, safeUrl(link));
+    this._card(tabBar + `<div class="list${scroll ? " scroll" : ""}" style="--f-rows:${max}">${body}</div>` + foot, c.title || T.title, sub, safeUrl(link));
     if (scroll) this._fitList(max);
   }
 
-  /** Hauteur de la liste = ses « max » premières lignes ; les suivantes se voient en faisant défiler. */
+  /** Hauteur de la liste = ses « max » premières lignes ; les suivantes se voient en faisant défiler.
+   *  La mesure n'est possible qu'une fois la carte affichée (onglet du tableau de bord ouvert, page chargée) :
+   *  un ResizeObserver la refait dès que la carte prend sa taille, puis à chaque changement de largeur. */
   _fitList(max) {
+    this._fitObs?.disconnect();
     const list = this.shadowRoot.querySelector(".list.scroll");
     if (!list) return;
-    const fit = () => {
-      const rows = list.querySelectorAll(":scope > .row");
-      if (rows.length <= max) { list.style.maxHeight = ""; return; }
-      const last = rows[max - 1];
-      const h = last.offsetTop + last.offsetHeight + 2;  // .list.scroll est positionnée : offsetTop relatif à la liste
-      if (h > 0) list.style.maxHeight = `${h}px`;
-    };
-    // bouton « n nouveaux plus bas » : recompté en faisant défiler, masqué quand tout a été vu
     const btn = this.shadowRoot.querySelector(".below");
     const T = this._t();
+    const fit = () => {
+      const rows = list.querySelectorAll(":scope > .row");
+      let want = "";
+      if (rows.length > max) {
+        const last = rows[max - 1];
+        const h = last.offsetTop + last.offsetHeight + 2;  // .list.scroll est positionnée : offsetTop relatif à la liste
+        if (!(h > 2)) return;  // pas encore affichée : la mesure se fera plus tard
+        want = `${h}px`;
+      }
+      if (list.style.maxHeight !== want) list.style.maxHeight = want;
+      list.classList.add("fitted");
+      count();
+    };
+    // bouton « n nouveaux plus bas » : recompté en faisant défiler, masqué quand tout a été vu
     const count = () => {
       if (!btn) return;
       const n = [...list.querySelectorAll(":scope > .row.new")].filter((r) => r.offsetTop >= list.scrollTop + list.clientHeight - 4).length;
@@ -397,8 +409,12 @@ class HacfForumCard extends HTMLElement {
       btn.lastChild.textContent = T.below.replace("{n}", n);
     };
     list.addEventListener("scroll", count, { passive: true });
+    if (window.ResizeObserver) {
+      this._fitObs = new ResizeObserver(() => fit());
+      this._fitObs.observe(list);  // la liste passe de 0 à sa taille réelle quand la carte s'affiche
+    }
     fit();
-    requestAnimationFrame(() => { fit(); count(); });  // la carte vient d'être affichée : mesures exactes à l'image suivante
+    requestAnimationFrame(fit);
   }
 
   _card(body, title, sub, link = FORUM) {
@@ -438,6 +454,7 @@ header { display: flex; align-items: center; justify-content: space-between; gap
 .tab b { min-width: 18px; padding: 0 5px; border-radius: 9px; background: var(--f-new); color: #1a2434; font-size: .7rem; line-height: 18px; text-align: center; }
 .tab:focus-visible, .seen:focus-visible, .row:focus-visible { outline: 2px solid var(--f-accent); outline-offset: 2px; }
 .list { display: flex; flex-direction: column; gap: 6px; padding: 0 12px; }
+.list.scroll:not(.fitted) { max-height: calc(var(--f-rows, 10) * 60px); }
 .list.scroll { overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: var(--f-line) transparent; position: relative; }
 .acts { display: inline-flex; gap: 6px; flex-wrap: wrap; }
 .below { display: inline-flex; align-items: center; gap: 4px; background: none; border: 1px solid var(--f-new); color: var(--f-new);
