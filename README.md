@@ -129,6 +129,10 @@ Les listes (`topics`, `notifications`, `articles`) ne sont pas enregistrées dan
 
 ## Historique des versions
 
+### 0.3.1b5
+
+- ➕ **Ajout** : mention « © Marlboro62 » à côté du numéro de version, en bas de la carte et dans la console du navigateur.
+
 ### 0.3.1b4
 
 - ➕ **Ajout** : numéro de version de la carte affiché en bas, après « Intégration non officielle », pour voir d'un coup d'œil quelle version chaque appareil a chargée.
