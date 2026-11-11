@@ -129,6 +129,10 @@ Les listes (`topics`, `notifications`, `articles`) ne sont pas enregistrées dan
 
 ## Historique des versions
 
+### 0.3.1b2
+
+- 🐛 **Correction** : la limite de 60 % de la hauteur de l'écran ne s'applique plus qu'aux téléphones ; sur tablette et ordinateur, la liste affiche de nouveau les `max_items` lignes demandées ([#2](https://github.com/Marlboro62/hacf-forum/issues/2)).
+
 ### 0.3.1b1
 
 - 🐛 **Correction** : sur un téléphone, la liste pouvait occuper tout l'écran et le bouton **Tout marquer comme vu** restait inaccessible. La liste ne dépasse plus 60 % de la hauteur de l'écran, et le défilement passe à la page quand on arrive en bas de la liste. Merci @JourMic ([#2](https://github.com/Marlboro62/hacf-forum/issues/2)).
