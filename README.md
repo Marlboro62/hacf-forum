@@ -129,13 +129,11 @@ Les listes (`topics`, `notifications`, `articles`) ne sont pas enregistrées dan
 
 ## Historique des versions
 
-### 0.3.0b2
+### 0.3.0
 
-- **Correction** : à l'ouverture de la page, la liste affichait parfois tous les sujets au lieu de `max_items` lignes, jusqu'au rafraîchissement suivant (une minute). La hauteur est maintenant mesurée dès que la carte s'affiche, et recalculée quand sa largeur change.
-
-### 0.3.0b1
-
-- **Ajout** : défilement de la liste dans la carte (option `scroll`, active par défaut). La carte garde la hauteur de `max_items` lignes et tous les sujets récupérés restent accessibles en faisant défiler ; bouton **↓ N nouveau(x) plus bas** pour aller aux nouveautés cachées. Merci @JourMic pour l'idée ([#1](https://github.com/Marlboro62/hacf-forum/issues/1)).
+- ✨ **Nouveauté** : défilement de la liste dans la carte (option `scroll`, active par défaut). La carte garde la hauteur de `max_items` lignes et tous les sujets récupérés restent accessibles en faisant défiler ; bouton **↓ N nouveau(x) plus bas** pour aller aux nouveautés cachées. Merci @JourMic pour l'idée et les tests ([#1](https://github.com/Marlboro62/hacf-forum/issues/1)).
+- 🐛 **Correction** : la hauteur de la liste est mesurée dès que la carte s'affiche (avant, tous les sujets pouvaient apparaître jusqu'au rafraîchissement suivant).
+- 📜 **Licence** : première version stable sous licence « Tous droits réservés » (voir plus bas).
 
 ### 0.2.0
 
@@ -163,6 +161,6 @@ Ouvrez une [issue GitHub](https://github.com/Marlboro62/hacf-forum/issues), avec
 
 Ces interdictions s'appliquent à toute personne, association ou organisation, **y compris l'association HACF**, qui ne peut ni copier, ni reprendre, ni modifier, ni diffuser ce projet sans mon accord écrit.
 
-Conditions complètes : [LICENSE](LICENSE). Les versions publiées jusqu'à la 0.3.0b2 incluse restent sous licence MIT.
+Conditions complètes : [LICENSE](LICENSE). Les versions publiées jusqu'à la 0.3.0b2 incluse restent sous licence MIT ; la licence « Tous droits réservés » s'applique à partir de la 0.3.0.
 
 Le nom HACF désigne le forum suivi : ce projet est indépendant, il n'est ni produit ni validé par l'association HACF.
