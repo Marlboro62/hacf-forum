@@ -8,7 +8,7 @@
  * © 2026 Marlboro62. Tous droits réservés : copie, diffusion et modification interdites sans accord écrit (voir LICENSE).
  */
 (() => {
-const CARD_VERSION = "0.3.0";
+const CARD_VERSION = "0.3.1b1";
 const FORUM = "https://forum.hacf.fr";
 const SITE = "https://www.hacf.fr";
 
@@ -393,11 +393,14 @@ class HacfForumCard extends HTMLElement {
     const fit = () => {
       const rows = list.querySelectorAll(":scope > .row");
       let want = "";
-      if (rows.length > max) {
-        const last = rows[max - 1];
+      if (rows.length) {
+        const last = rows[Math.min(max, rows.length) - 1];
         const h = last.offsetTop + last.offsetHeight + 2;  // .list.scroll est positionnée : offsetTop relatif à la liste
         if (!(h > 2)) return;  // pas encore affichée : la mesure se fera plus tard
-        want = `${h}px`;
+        // sur un téléphone, les titres passent sur deux lignes : la liste ne dépasse pas 60 % de l'écran,
+        // pour que le bas de la carte (« Tout marquer comme vu ») reste accessible
+        const cap = Math.max(240, Math.round(window.innerHeight * 0.6));
+        if (rows.length > max || h > cap) want = `${Math.min(h, cap)}px`;
       }
       if (list.style.maxHeight !== want) list.style.maxHeight = want;
       list.classList.add("fitted");
@@ -456,8 +459,8 @@ header { display: flex; align-items: center; justify-content: space-between; gap
 .tab b { min-width: 18px; padding: 0 5px; border-radius: 9px; background: var(--f-new); color: #1a2434; font-size: .7rem; line-height: 18px; text-align: center; }
 .tab:focus-visible, .seen:focus-visible, .row:focus-visible { outline: 2px solid var(--f-accent); outline-offset: 2px; }
 .list { display: flex; flex-direction: column; gap: 6px; padding: 0 12px; }
-.list.scroll:not(.fitted) { max-height: calc(var(--f-rows, 10) * 60px); }
-.list.scroll { overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: var(--f-line) transparent; position: relative; }
+.list.scroll:not(.fitted) { max-height: min(calc(var(--f-rows, 10) * 60px), 60vh); }
+.list.scroll { overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--f-line) transparent; position: relative; }
 .acts { display: inline-flex; gap: 6px; flex-wrap: wrap; }
 .below { display: inline-flex; align-items: center; gap: 4px; background: none; border: 1px solid var(--f-new); color: var(--f-new);
   border-radius: 999px; padding: 4px 10px; font: inherit; font-size: .72rem; cursor: pointer; }
