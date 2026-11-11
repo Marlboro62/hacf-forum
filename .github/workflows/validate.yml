@@ -21,6 +21,8 @@ jobs:
       - uses: hacs/action@main
         with:
           category: integration
+          # licence « tous droits réservés » : hors liste par défaut de la Marketplace, installation en dépôt personnalisé
+          ignore: license
   tests:
     runs-on: ubuntu-latest
     steps:

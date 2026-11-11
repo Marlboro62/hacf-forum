@@ -55,10 +55,12 @@ Intégration et carte **non officielles** pour suivre le [forum HACF](https://fo
 
 ## Installation
 
-### Avec HACS
+### Depuis la Marketplace (dépôt personnalisé)
 
 1. Dans **Paramètres › Marketplace** (ou HACS avant Home Assistant 2026.11), menu **⋮** → **Dépôts personnalisés** : adresse `https://github.com/Marlboro62/hacf-forum`, type **Intégration**.
 2. Cherchez **HACF Forum**, téléchargez-la, puis **redémarrez Home Assistant**.
+
+HACF Forum n'est pas dans la liste par défaut de la Marketplace (elle n'accepte que des projets open source) : il s'ajoute toujours par l'adresse du dépôt, comme ci-dessus.
 
 ### Ajouter l'intégration
 
