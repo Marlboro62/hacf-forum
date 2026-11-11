@@ -129,6 +129,10 @@ Les listes (`topics`, `notifications`, `articles`) ne sont pas enregistrées dan
 
 ## Historique des versions
 
+### 0.3.1b4
+
+- ➕ **Ajout** : numéro de version de la carte affiché en bas, après « Intégration non officielle », pour voir d'un coup d'œil quelle version chaque appareil a chargée.
+
 ### 0.3.1b3
 
 - ✨ **Ajout** : **Tout marquer comme vu** est partagé entre vos appareils (tablette, téléphone, ordinateur) connectés avec le même utilisateur Home Assistant, et mis à jour en direct. Merci @JourMic pour l'idée ([#2](https://github.com/Marlboro62/hacf-forum/issues/2)).
