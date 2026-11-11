@@ -88,12 +88,15 @@ Elle trouve seule les capteurs de l'intégration. Elle est aussi proposée dans 
 | --- | --- | --- |
 | `title` | Titre | `Forum HACF` |
 | `show_latest`, `show_mine`, `show_notifications`, `show_news` | Onglets affichés | `true` |
-| `max_items` | Nombre de lignes par onglet | `10` |
+| `max_items` | Nombre de lignes visibles par onglet | `10` |
+| `scroll` | Faire défiler la liste pour voir les lignes suivantes (sinon la liste s'arrête à `max_items`) | `true` |
 | `show_avatars` | Avatar de l'auteur du dernier message | `true` |
 | `theme` | `v2` (bleu nuit), `auto` (clair si Home Assistant est en mode clair) ou `ha` (thème de Home Assistant) | `v2` |
 | `language` | `auto`, `fr`, `en` ou `pl` | `auto` |
 
-Le bouton **Tout marquer comme vu** remet à zéro les « nouveau » et « +N » de l'onglet affiché (mémorisés dans le navigateur).
+Le bouton **Tout marquer comme vu** remet à zéro les « nouveau » et « +N » de l'onglet affiché (mémorisés dans le navigateur). Quand des nouveautés sont plus bas dans la liste, le bouton **↓ N nouveau(x) plus bas** y descend directement.
+
+Le nombre de sujets lus sur le forum se règle dans les options de l'intégration (**Nombre de sujets**, 20 par défaut) : augmentez-le si vous voulez faire défiler plus loin.
 
 ## Options de l'intégration
 
@@ -123,6 +126,10 @@ Les listes (`topics`, `notifications`, `articles`) ne sont pas enregistrées dan
 - Les avatars et les images des articles sont chargés depuis le forum et le site par votre navigateur.
 
 ## Historique des versions
+
+### 0.3.0b1
+
+- **Ajout** : défilement de la liste dans la carte (option `scroll`, active par défaut). La carte garde la hauteur de `max_items` lignes et tous les sujets récupérés restent accessibles en faisant défiler ; bouton **↓ N nouveau(x) plus bas** pour aller aux nouveautés cachées. Merci @JourMic pour l'idée ([#1](https://github.com/Marlboro62/hacf-forum/issues/1)).
 
 ### 0.2.0
 

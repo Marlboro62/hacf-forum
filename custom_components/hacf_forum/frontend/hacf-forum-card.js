@@ -6,7 +6,7 @@
  * Chargée automatiquement par l'intégration : aucune ressource à ajouter.
  */
 (() => {
-const CARD_VERSION = "0.2.0";
+const CARD_VERSION = "0.3.0b1";
 const FORUM = "https://forum.hacf.fr";
 const SITE = "https://www.hacf.fr";
 
@@ -17,6 +17,7 @@ const DEFAULTS = {
   show_notifications: true,
   show_news: true,
   max_items: 10,
+  scroll: true,
   show_avatars: true,
   theme: "v2",
   language: "auto",
@@ -27,7 +28,7 @@ const DEFAULTS = {
 const I18N = {
   fr: {
     title: "Forum HACF", all: "Tout le forum", latest: "Sujets", mine: "Mes sujets", notifs: "Notifications",
-    open: "Ouvrir le forum", seen: "Tout marquer comme vu", none_latest: "Aucun sujet pour le moment.",
+    open: "Ouvrir le forum", seen: "Tout marquer comme vu", below: "{n} nouveau(x) plus bas", none_latest: "Aucun sujet pour le moment.",
     none_mine: "Aucun sujet ouvert par ce pseudo.", none_notifs: "Aucune notification.", unread: "non lues",
     news: "nouveaux", new_badge: "nouveau", replies: "réponses", reply: "réponse", views: "vues", likes: "j'aime",
     by: "dernier message de", updated: "Mis à jour", unofficial: "Intégration non officielle",
@@ -48,7 +49,7 @@ const I18N = {
   },
   en: {
     title: "HACF forum", all: "Whole forum", latest: "Topics", mine: "My topics", notifs: "Notifications",
-    open: "Open the forum", seen: "Mark all as seen", none_latest: "No topics yet.",
+    open: "Open the forum", seen: "Mark all as seen", below: "{n} new below", none_latest: "No topics yet.",
     none_mine: "No topics opened by this user.", none_notifs: "No notifications.", unread: "unread",
     news: "new", new_badge: "new", replies: "replies", reply: "reply", views: "views", likes: "likes",
     by: "last post by", updated: "Updated", unofficial: "Unofficial integration",
@@ -69,7 +70,7 @@ const I18N = {
   },
   pl: {
     title: "Forum HACF", all: "Całe forum", latest: "Tematy", mine: "Moje tematy", notifs: "Powiadomienia",
-    open: "Otwórz forum", seen: "Oznacz wszystko jako przejrzane", none_latest: "Brak tematów.",
+    open: "Otwórz forum", seen: "Oznacz wszystko jako przejrzane", below: "{n} nowe poniżej", none_latest: "Brak tematów.",
     none_mine: "Brak tematów tego użytkownika.", none_notifs: "Brak powiadomień.", unread: "nieprzeczytane",
     news: "nowe", new_badge: "nowe", replies: "odpowiedzi", reply: "odpowiedź", views: "wyświetleń", likes: "polubień",
     by: "ostatni post:", updated: "Zaktualizowano", unofficial: "Integracja nieoficjalna",
@@ -129,6 +130,7 @@ class HacfForumCard extends HTMLElement {
           { name: "show_avatars", selector: { boolean: {} } },
         ] },
         { name: "max_items", selector: { number: { min: 3, max: 50, mode: "box" } } },
+        { name: "scroll", selector: { boolean: {} } },
         { name: "theme", selector: { select: { mode: "dropdown", options: [
           { value: "v2", label: "Bleu nuit (style des cartes MyElectricalData)" },
           { value: "auto", label: "Bleu nuit, clair si Home Assistant est en mode clair" },
@@ -140,6 +142,7 @@ class HacfForumCard extends HTMLElement {
       computeLabel: (s) => ({
         title: "Titre (Forum HACF par défaut)", show_latest: "Onglet Sujets", show_mine: "Onglet Mes sujets",
         show_notifications: "Onglet Notifications", show_news: "Onglet Actus (hacf.fr)", show_avatars: "Avatars des membres", max_items: "Nombre de lignes affichées",
+        scroll: "Faire défiler la liste pour voir tous les sujets au-delà de ces lignes",
         theme: "Couleurs de la carte", language: "Langue",
       }[s.name] || s.name),
     };
@@ -154,6 +157,11 @@ class HacfForumCard extends HTMLElement {
         const tab = ev.target.closest?.("[data-tab]");
         if (tab) { this._tab = tab.dataset.tab; store.set("hacf-forum:tab", this._tab); this._sig = null; this._render(); return; }
         if (ev.target.closest?.("[data-act=seen]")) { this._markSeen(); this._sig = null; this._render(); }
+        if (ev.target.closest?.("[data-act=below]")) {
+          const list = this.shadowRoot.querySelector(".list.scroll");
+          const first = list && [...list.querySelectorAll(".row.new")].find((r) => r.offsetTop >= list.scrollTop + list.clientHeight - 4);
+          if (first) list.scrollTo({ top: first.offsetTop - 4, behavior: "smooth" });
+        }
       }));
     }
     this._render();
@@ -296,6 +304,10 @@ class HacfForumCard extends HTMLElement {
     const mine = st(ents.mine)?.attributes || null;
     const notifs = st(ents.notifs)?.attributes || null;
     const max = Math.max(3, Number(c.max_items) || 10);
+    // défilement : toutes les lignes sont présentes, la liste garde la hauteur de « max » lignes
+    const scroll = c.scroll !== false;
+    const cut = scroll ? Infinity : max;
+    let hidden = 0;
 
     // nouveautés depuis la dernière visite (première visite : tout est considéré comme vu)
     let seenAt = store.get(this._seenKey("latest"), 0);
@@ -326,25 +338,30 @@ class HacfForumCard extends HTMLElement {
 
     let body = "", link = latest.forum_url, canSee = false, sub = latest.category?.full_name || T.all;
     if (this._tab === "latest") {
-      const rows = latestTopics.slice(0, max).map((t) => this._topicRow(t, isNewLatest(t)));
+      const rows = latestTopics.slice(0, cut).map((t) => this._topicRow(t, isNewLatest(t)));
+      hidden = latestTopics.slice(max).filter(isNewLatest).length;
       body = rows.length ? rows.join("") : `<div class="none">${esc(T.none_latest)}</div>`;
       canSee = true;
     } else if (this._tab === "mine") {
       link = mine.forum_url;
-      const rows = mineTopics.slice(0, max).map((t) => { const n = newReplies(t); return this._topicRow(t, n > 0, `+${n}`); });
+      const rows = mineTopics.slice(0, cut).map((t) => { const n = newReplies(t); return this._topicRow(t, n > 0, `+${n}`); });
+      hidden = mineTopics.slice(max).filter((t) => newReplies(t) > 0).length;
       body = rows.length ? rows.join("") : `<div class="none">${esc(T.none_mine)}</div>`;
       canSee = true;
     } else if (this._tab === "news") {
       link = news.news_url;
       sub = T.news_sub;
-      const rows = articles.slice(0, max).map((a) => this._newsRow(a, isNewArticle(a)));
+      const rows = articles.slice(0, cut).map((a) => this._newsRow(a, isNewArticle(a)));
+      hidden = articles.slice(max).filter(isNewArticle).length;
       body = rows.length ? rows.join("") : `<div class="none">${esc(T.none_news)}</div>`;
       canSee = true;
     } else {
       if (!notifs) body = `<div class="none">${esc(T.no_account)}</div>`;
       else {
         link = notifs.forum_url;
-        const rows = (notifs.notifications || []).slice(0, max).map((n) => this._notifRow(n));
+        const all = notifs.notifications || [];
+        const rows = all.slice(0, cut).map((n) => this._notifRow(n));
+        hidden = all.slice(max).filter((n) => !n.read).length;
         body = rows.length ? rows.join("") : `<div class="none">${esc(T.none_notifs)}</div>`;
       }
     }
@@ -352,9 +369,36 @@ class HacfForumCard extends HTMLElement {
     const tabBar = tabs.length > 1 ? `<div class="tabs" role="tablist">${tabs.map(([k, icon, label, n]) =>
       `<button class="tab${k === this._tab ? " on" : ""}" role="tab" aria-selected="${k === this._tab}" data-tab="${k}"><ha-icon icon="${icon}"></ha-icon>${esc(label)}${n ? `<b>${n}</b>` : ""}</button>`).join("")}</div>` : "";
     const updated = st(ents.latest)?.last_updated;
-    const foot = `<div class="foot">${canSee ? `<button class="seen" data-act="seen"><ha-icon icon="mdi:check-all"></ha-icon>${esc(T.seen)}</button>` : "<span></span>"}
+    const below = scroll && hidden ? `<button class="below" data-act="below"><ha-icon icon="mdi:arrow-down"></ha-icon><span>${esc(T.below.replace("{n}", hidden))}</span></button>` : "";
+    const foot = `<div class="foot"><span class="acts">${canSee ? `<button class="seen" data-act="seen"><ha-icon icon="mdi:check-all"></ha-icon>${esc(T.seen)}</button>` : ""}${below}</span>
       <span>${esc(T.updated)} ${esc(this._ago(updated))} · ${esc(T.unofficial)}</span></div>`;
-    this._card(tabBar + `<div class="list">${body}</div>` + foot, c.title || T.title, sub, safeUrl(link));
+    this._card(tabBar + `<div class="list${scroll ? " scroll" : ""}">${body}</div>` + foot, c.title || T.title, sub, safeUrl(link));
+    if (scroll) this._fitList(max);
+  }
+
+  /** Hauteur de la liste = ses « max » premières lignes ; les suivantes se voient en faisant défiler. */
+  _fitList(max) {
+    const list = this.shadowRoot.querySelector(".list.scroll");
+    if (!list) return;
+    const fit = () => {
+      const rows = list.querySelectorAll(":scope > .row");
+      if (rows.length <= max) { list.style.maxHeight = ""; return; }
+      const last = rows[max - 1];
+      const h = last.offsetTop + last.offsetHeight + 2;  // .list.scroll est positionnée : offsetTop relatif à la liste
+      if (h > 0) list.style.maxHeight = `${h}px`;
+    };
+    // bouton « n nouveaux plus bas » : recompté en faisant défiler, masqué quand tout a été vu
+    const btn = this.shadowRoot.querySelector(".below");
+    const T = this._t();
+    const count = () => {
+      if (!btn) return;
+      const n = [...list.querySelectorAll(":scope > .row.new")].filter((r) => r.offsetTop >= list.scrollTop + list.clientHeight - 4).length;
+      btn.hidden = n === 0;
+      btn.lastChild.textContent = T.below.replace("{n}", n);
+    };
+    list.addEventListener("scroll", count, { passive: true });
+    fit();
+    requestAnimationFrame(() => { fit(); count(); });  // la carte vient d'être affichée : mesures exactes à l'image suivante
   }
 
   _card(body, title, sub, link = FORUM) {
@@ -394,6 +438,12 @@ header { display: flex; align-items: center; justify-content: space-between; gap
 .tab b { min-width: 18px; padding: 0 5px; border-radius: 9px; background: var(--f-new); color: #1a2434; font-size: .7rem; line-height: 18px; text-align: center; }
 .tab:focus-visible, .seen:focus-visible, .row:focus-visible { outline: 2px solid var(--f-accent); outline-offset: 2px; }
 .list { display: flex; flex-direction: column; gap: 6px; padding: 0 12px; }
+.list.scroll { overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: var(--f-line) transparent; position: relative; }
+.acts { display: inline-flex; gap: 6px; flex-wrap: wrap; }
+.below { display: inline-flex; align-items: center; gap: 4px; background: none; border: 1px solid var(--f-new); color: var(--f-new);
+  border-radius: 999px; padding: 4px 10px; font: inherit; font-size: .72rem; cursor: pointer; }
+.below ha-icon { --mdc-icon-size: 15px; }
+.below[hidden] { display: none; }
 .row { display: flex; gap: 10px; align-items: flex-start; padding: 9px 10px; border-radius: 12px; background: var(--f-surface);
   border: 1px solid transparent; color: inherit; text-decoration: none; min-width: 0; }
 .row:hover { border-color: var(--f-line); }
