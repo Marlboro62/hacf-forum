@@ -129,25 +129,13 @@ Les listes (`topics`, `notifications`, `articles`) ne sont pas enregistrées dan
 
 ## Historique des versions
 
-### 0.3.1b5
+### 0.3.1
 
-- ➕ **Ajout** : mention « © Marlboro62 » à côté du numéro de version, en bas de la carte et dans la console du navigateur.
+- 🐛 **Téléphone** : le bouton **Tout marquer comme vu** est de nouveau accessible. La liste ne dépasse plus 60 % de la hauteur de l'écran sur un téléphone, et en bas de la liste le défilement continue sur la page ; tablette et ordinateur gardent leurs `max_items` lignes.
+- ✨ **« Vu » partagé entre les appareils** : **Tout marquer comme vu** est enregistré dans votre compte Home Assistant, commun à la tablette, au téléphone et à l'ordinateur connectés avec le même utilisateur HA, et mis à jour en direct.
+- ➕ **Version affichée** en bas de la carte, avec la mention « © Marlboro62 ».
 
-### 0.3.1b4
-
-- ➕ **Ajout** : numéro de version de la carte affiché en bas, après « Intégration non officielle », pour voir d'un coup d'œil quelle version chaque appareil a chargée.
-
-### 0.3.1b3
-
-- ✨ **Ajout** : **Tout marquer comme vu** est partagé entre vos appareils (tablette, téléphone, ordinateur) connectés avec le même utilisateur Home Assistant, et mis à jour en direct. Merci @JourMic pour l'idée ([#2](https://github.com/Marlboro62/hacf-forum/issues/2)).
-
-### 0.3.1b2
-
-- 🐛 **Correction** : la limite de 60 % de la hauteur de l'écran ne s'applique plus qu'aux téléphones ; sur tablette et ordinateur, la liste affiche de nouveau les `max_items` lignes demandées ([#2](https://github.com/Marlboro62/hacf-forum/issues/2)).
-
-### 0.3.1b1
-
-- 🐛 **Correction** : sur un téléphone, la liste pouvait occuper tout l'écran et le bouton **Tout marquer comme vu** restait inaccessible. La liste ne dépasse plus 60 % de la hauteur de l'écran, et le défilement passe à la page quand on arrive en bas de la liste. Merci @JourMic ([#2](https://github.com/Marlboro62/hacf-forum/issues/2)).
+Merci @JourMic pour les signalements et les tests ([#2](https://github.com/Marlboro62/hacf-forum/issues/2)).
 
 ### 0.3.0
 
