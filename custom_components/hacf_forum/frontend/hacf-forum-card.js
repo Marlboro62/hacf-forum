@@ -8,7 +8,7 @@
  * © 2026 Marlboro62. Tous droits réservés : copie, diffusion et modification interdites sans accord écrit (voir LICENSE).
  */
 (() => {
-const CARD_VERSION = "0.3.1b4";
+const CARD_VERSION = "0.3.1b5";
 const FORUM = "https://forum.hacf.fr";
 const SITE = "https://www.hacf.fr";
 
@@ -411,7 +411,7 @@ class HacfForumCard extends HTMLElement {
     const updated = st(ents.latest)?.last_updated;
     const below = scroll && hidden ? `<button class="below" data-act="below"><ha-icon icon="mdi:arrow-down"></ha-icon><span>${esc(T.below.replace("{n}", hidden))}</span></button>` : "";
     const foot = `<div class="foot"><span class="acts">${canSee ? `<button class="seen" data-act="seen"><ha-icon icon="mdi:check-all"></ha-icon>${esc(T.seen)}</button>` : ""}${below}</span>
-      <span>${esc(T.updated)} ${esc(this._ago(updated))} · ${esc(T.unofficial)} · v${CARD_VERSION}</span></div>`;
+      <span>${esc(T.updated)} ${esc(this._ago(updated))} · ${esc(T.unofficial)} · v${CARD_VERSION} © Marlboro62</span></div>`;
     this._card(tabBar + `<div class="list${scroll ? " scroll" : ""}" style="--f-rows:${max}">${body}</div>` + foot, c.title || T.title, sub, safeUrl(link));
     if (scroll) this._fitList(max);
   }
@@ -550,5 +550,5 @@ if (!window.customCards.some((c) => c.type === "hacf-forum-card")) {
     documentationURL: "https://github.com/Marlboro62/hacf-forum",
   });
 }
-console.info(`%c HACF-FORUM-CARD %c ${CARD_VERSION} `, "background:#96d21f;color:#1a2434;font-weight:700", "background:#1d93e3;color:#fff");
+console.info(`%c HACF-FORUM-CARD %c ${CARD_VERSION} © Marlboro62 `, "background:#96d21f;color:#1a2434;font-weight:700", "background:#1d93e3;color:#fff");
 })();
