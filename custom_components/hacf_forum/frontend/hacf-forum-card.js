@@ -8,7 +8,7 @@
  * © 2026 Marlboro62. Tous droits réservés : copie, diffusion et modification interdites sans accord écrit (voir LICENSE).
  */
 (() => {
-const CARD_VERSION = "0.3.1b5";
+const CARD_VERSION = "0.3.1";
 const FORUM = "https://forum.hacf.fr";
 const SITE = "https://www.hacf.fr";
 
