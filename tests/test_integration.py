@@ -186,3 +186,33 @@ async def test_news_disabled_and_unreachable(hass: HomeAssistant, aioclient_mock
     hass.config_entries.async_update_entry(entry, options={"news": False})
     await hass.async_block_till_done()
     assert hass.states.get(reg.async_get_entity_id("sensor", DOMAIN, f"{entry.entry_id}_news")).state == "unavailable"
+
+
+async def test_tag_alone_and_in_category(hass: HomeAssistant, aioclient_mock: AiohttpClientMocker) -> None:
+    """Étiquette suivie (issue du fil HACF : « ia ») : seule, puis dans une catégorie ; saisie normalisée."""
+    _mock_public(aioclient_mock)
+    aioclient_mock.get(f"{F}/tags.json", json={"tags": [{"id": "ia", "name": "ia", "count": 40},
+                                                        {"id": "zigbee", "name": "zigbee", "count": 90}]})
+    aioclient_mock.get(f"{F}/tag/ia/l/latest.json", json=_list(_topic(5, "Assist et LLM")))
+    aioclient_mock.get(f"{F}/tags/c/lovelace/12/ia/l/latest.json", json=_list(_topic(6, "Carte Assist")))
+    entry = await _setup(hass, {"username": "Membre"})
+    reg = er.async_get(hass)
+    sensor_id = reg.async_get_entity_id("sensor", DOMAIN, f"{entry.entry_id}_latest_topics")
+
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+    result = await hass.config_entries.options.async_configure(result["flow_id"], {"next_step_id": "settings"})
+    assert result["type"] is FlowResultType.FORM
+    result = await hass.config_entries.options.async_configure(result["flow_id"], {"category": "0", "tag": " #IA "})
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+    assert entry.options["tag"] == "ia" and entry.options["category"] == ""
+    await hass.async_block_till_done()
+    state = hass.states.get(sensor_id)
+    assert [t["title"] for t in state.attributes["topics"]] == ["Assist et LLM"]
+    assert state.attributes["tag"] == "ia" and state.attributes["forum_url"] == f"{F}/tag/ia"
+
+    hass.config_entries.async_update_entry(entry, options={**entry.options, "category": "12"})
+    await hass.config_entries.async_reload(entry.entry_id)
+    await hass.async_block_till_done()
+    state = hass.states.get(sensor_id)
+    assert [t["title"] for t in state.attributes["topics"]] == ["Carte Assist"]
+    assert state.attributes["forum_url"] == f"{F}/tags/c/lovelace/12/ia"

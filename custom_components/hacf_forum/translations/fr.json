@@ -62,15 +62,17 @@
         }
       },
       "settings": {
-        "title": "Catégorie et affichage",
+        "title": "Catégorie, étiquette et affichage",
         "data": {
           "category": "Catégorie suivie",
+          "tag": "Étiquette suivie",
           "topics": "Nombre de sujets",
           "scan_minutes": "Fréquence de mise à jour",
           "news": "Actualités du site hacf.fr"
         },
         "data_description": {
           "category": "« — » : tout le forum.",
+          "tag": "Facultatif, par exemple « ia » : seulement les sujets de cette étiquette (dans la catégorie choisie, s'il y en a une). Vide : pas de filtre.",
           "topics": "Sujets gardés dans chaque liste (5 à 50).",
           "scan_minutes": "En minutes (5 minimum, pour ménager le forum).",
           "news": "Articles de la rubrique « Actualités » de hacf.fr, relus toutes les 3 heures."

@@ -105,6 +105,7 @@ Le nombre de sujets lus sur le forum se règle dans les options de l'intégratio
 **Paramètres › Appareils et services › HACF Forum › Configurer** :
 
 - **Catégorie suivie** pour les derniers sujets (« — » : tout le forum) ;
+- **Étiquette suivie** (facultative, par exemple `ia`) : seulement les sujets de cette étiquette, dans tout le forum ou dans la catégorie choisie. Les étiquettes les plus utilisées sont proposées, toute autre peut être saisie ;
 - **Nombre de sujets** gardés (5 à 50, 20 par défaut) ;
 - **Fréquence de mise à jour** (10 minutes par défaut, 5 au minimum pour ménager le forum) ;
 - **Actualités du site hacf.fr** (activé par défaut) : le flux est relu toutes les 3 heures ;
@@ -114,7 +115,7 @@ Le nombre de sujets lus sur le forum se règle dans les options de l'intégratio
 
 | Capteur | État | Attributs |
 | --- | --- | --- |
-| Derniers sujets | Sujets actifs ces dernières 24 heures | `topics`, `category`, `forum_url` |
+| Derniers sujets | Sujets actifs ces dernières 24 heures | `topics`, `category`, `tag`, `forum_url` |
 | Mes sujets | Nombre de vos sujets | `topics`, `username`, `forum_url` |
 | Notifications | Notifications non lues | `notifications`, `account`, `forum_url` |
 | Actualités hacf.fr | Date du dernier article | `articles`, `last_title`, `news_url` |

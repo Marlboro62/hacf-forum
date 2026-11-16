@@ -32,7 +32,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ForumConfigEntry, async_
 class ForumEntity(CoordinatorEntity[ForumCoordinator], SensorEntity):
     _attr_has_entity_name = True
     # listes destinées à la carte : pas d'historique dans la base de Home Assistant
-    _unrecorded_attributes = frozenset({"topics", "notifications", "category", "articles"})
+    _unrecorded_attributes = frozenset({"topics", "notifications", "category", "tag", "articles"})
 
     def __init__(self, coordinator: ForumCoordinator, key: str) -> None:
         super().__init__(coordinator)
@@ -75,8 +75,14 @@ class LatestTopicsSensor(ForumEntity):
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
-        cat = self.coordinator.data.get("category")
-        return {"topics": self.coordinator.data.get("latest", []), "category": cat, "forum_url": cat["url"] if cat else f"{BASE_URL}/latest"}
+        cat, tag = self.coordinator.data.get("category"), self.coordinator.data.get("tag")
+        if tag and cat:
+            url = f"{BASE_URL}/tags/c/{cat.get('slug') or 'c'}/{cat['id']}/{tag}"
+        elif tag:
+            url = f"{BASE_URL}/tag/{tag}"
+        else:
+            url = cat["url"] if cat else f"{BASE_URL}/latest"
+        return {"topics": self.coordinator.data.get("latest", []), "category": cat, "tag": tag, "forum_url": url}
 
 
 class MyTopicsSensor(ForumEntity):
