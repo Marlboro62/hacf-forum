@@ -8,7 +8,7 @@
  * © 2026 Marlboro62. Tous droits réservés : copie, diffusion et modification interdites sans accord écrit (voir LICENSE).
  */
 (() => {
-const CARD_VERSION = "0.3.1";
+const CARD_VERSION = "0.3.2b1";
 const FORUM = "https://forum.hacf.fr";
 const SITE = "https://www.hacf.fr";
 
@@ -376,7 +376,9 @@ class HacfForumCard extends HTMLElement {
     if (!this._tab) this._tab = store.get("hacf-forum:tab", "latest");
     if (!tabs.some(([k]) => k === this._tab)) this._tab = tabs[0]?.[0] || "latest";
 
-    let body = "", link = latest.forum_url, canSee = false, sub = latest.category?.full_name || T.all;
+    // sous-titre : catégorie et/ou étiquette suivies (« Partages › Lovelace · #ia »), sinon tout le forum
+    const followed = [latest.category?.full_name, latest.tag ? `#${latest.tag}` : ""].filter(Boolean).join(" · ");
+    let body = "", link = latest.forum_url, canSee = false, sub = followed || T.all;
     if (this._tab === "latest") {
       const rows = latestTopics.slice(0, cut).map((t) => this._topicRow(t, isNewLatest(t)));
       hidden = latestTopics.slice(max).filter(isNewLatest).length;

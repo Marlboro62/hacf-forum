@@ -20,10 +20,12 @@ from homeassistant.helpers import selector
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .api import ForumAuthError, ForumClient, ForumError, ForumNotFound
+from .coordinator import normalize_tag
 from .const import (
     APPLICATION_NAME,
     BASE_URL,
     CONF_CATEGORY,
+    CONF_TAG,
     CONF_CLIENT_ID,
     CONF_NEWS,
     CONF_SCAN_MINUTES,
@@ -198,6 +200,7 @@ class HacfForumOptionsFlow(AccountSteps, OptionsFlow):
     async def async_step_settings(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         if user_input is not None:
             user_input[CONF_CATEGORY] = "" if user_input.get(CONF_CATEGORY) in (None, "0") else user_input[CONF_CATEGORY]
+            user_input[CONF_TAG] = normalize_tag(user_input.get(CONF_TAG)) or ""
             return self.async_create_entry(data={**self.config_entry.options, **user_input})
         coordinator = getattr(self.config_entry, "runtime_data", None)
         cats = await coordinator.categories() if coordinator else {}
@@ -206,9 +209,26 @@ class HacfForumOptionsFlow(AccountSteps, OptionsFlow):
             for c in sorted(cats.values(), key=lambda c: c["full_name"].lower())
         ]
         opts = self.config_entry.options
+        # Étiquettes les plus utilisées en suggestions ; toute autre étiquette peut être saisie
+        tag_choices: list[str] = []
+        if coordinator:
+            try:
+                raw = (await coordinator.client.tags()).get("tags") or []
+                tags = [t for t in raw if isinstance(t, dict) and (t.get("name") or t.get("id"))]
+                tags.sort(key=lambda t: -(t.get("count") or 0))
+                tag_choices = [str(t.get("name") or t.get("id")) for t in tags[:100]]
+            except ForumError:
+                tag_choices = []
+        current_tag = opts.get(CONF_TAG) or ""
+        if current_tag and current_tag not in tag_choices:
+            tag_choices.insert(0, current_tag)
         schema = vol.Schema({
             vol.Optional(CONF_CATEGORY, default=str(opts.get(CONF_CATEGORY) or "0")): selector.SelectSelector(
                 selector.SelectSelectorConfig(options=choices, mode=selector.SelectSelectorMode.DROPDOWN)
+            ),
+            vol.Optional(CONF_TAG, description={"suggested_value": current_tag}): selector.SelectSelector(
+                selector.SelectSelectorConfig(options=tag_choices, custom_value=True, sort=True,
+                                              mode=selector.SelectSelectorMode.DROPDOWN)
             ),
             vol.Optional(CONF_TOPICS, default=int(opts.get(CONF_TOPICS, DEFAULT_TOPICS))): selector.NumberSelector(
                 selector.NumberSelectorConfig(min=5, max=50, step=1, mode=selector.NumberSelectorMode.BOX)

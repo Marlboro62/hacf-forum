@@ -4,7 +4,7 @@ from __future__ import annotations
 from typing import Final
 
 DOMAIN: Final = "hacf_forum"
-VERSION: Final = "0.3.1"
+VERSION: Final = "0.3.2b1"
 
 BASE_URL: Final = "https://forum.hacf.fr"
 
@@ -12,6 +12,7 @@ CONF_USERNAME: Final = "username"
 CONF_USER_API_KEY: Final = "user_api_key"
 CONF_CLIENT_ID: Final = "client_id"
 CONF_CATEGORY: Final = "category"
+CONF_TAG: Final = "tag"
 CONF_TOPICS: Final = "topics"
 CONF_SCAN_MINUTES: Final = "scan_minutes"
 CONF_NEWS: Final = "news"

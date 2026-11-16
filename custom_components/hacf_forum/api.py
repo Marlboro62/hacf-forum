@@ -61,10 +61,23 @@ class ForumClient:
         except (aiohttp.ClientError, TimeoutError, ValueError) as err:
             raise ForumError(f"{type(err).__name__} sur {path}") from err
 
-    async def latest(self, category_id: int | None = None) -> dict[str, Any]:
-        """Derniers sujets actifs, de tout le forum ou d'une catégorie."""
-        path = f"/c/{int(category_id)}/l/latest.json" if category_id else "/latest.json"
+    async def latest(
+        self, category_id: int | None = None, tag: str | None = None, category_slug: str | None = None
+    ) -> dict[str, Any]:
+        """Derniers sujets actifs : tout le forum, une catégorie, une étiquette, ou une étiquette dans une catégorie."""
+        if tag and category_id:
+            path = f"/tags/c/{quote(category_slug or 'c')}/{int(category_id)}/{quote(tag)}/l/latest.json"
+        elif tag:
+            path = f"/tag/{quote(tag)}/l/latest.json"
+        elif category_id:
+            path = f"/c/{int(category_id)}/l/latest.json"
+        else:
+            path = "/latest.json"
         return await self._get(path)
+
+    async def tags(self) -> dict[str, Any]:
+        """Étiquettes du forum, avec leur nombre de sujets."""
+        return await self._get("/tags.json")
 
     async def created_by(self, username: str) -> dict[str, Any]:
         """Sujets ouverts par un membre."""

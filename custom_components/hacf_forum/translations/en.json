@@ -62,15 +62,17 @@
         }
       },
       "settings": {
-        "title": "Category and display",
+        "title": "Category, tag and display",
         "data": {
           "category": "Followed category",
+          "tag": "Followed tag",
           "topics": "Number of topics",
           "scan_minutes": "Update interval",
           "news": "Articles from hacf.fr"
         },
         "data_description": {
           "category": "“—”: the whole forum.",
+          "tag": "Optional, e.g. “ia”: only topics with this tag (within the chosen category, if any). Empty: no filter.",
           "topics": "Topics kept in each list (5 to 50).",
           "scan_minutes": "In minutes (at least 5, to spare the forum).",
           "news": "Articles from the “News” section of hacf.fr, read every 3 hours."

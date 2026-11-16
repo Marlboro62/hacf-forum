@@ -15,6 +15,7 @@ from .api import ForumAuthError, ForumClient, ForumError
 from .const import (
     BASE_URL,
     CONF_CATEGORY,
+    CONF_TAG,
     CONF_NEWS,
     CONF_SCAN_MINUTES,
     CONF_TOPICS,
@@ -55,6 +56,12 @@ def topic_url(topic: dict[str, Any], post_number: int | None = None) -> str:
     url = f"{BASE_URL}/t/{topic.get('slug') or 'sujet'}/{topic.get('id')}"
     return f"{url}/{post_number}" if post_number else url
 
+
+
+def normalize_tag(value: Any) -> str | None:
+    """Étiquette saisie (« IA », « #ia ») ramenée à la forme du forum (« ia ») ; vide = aucune."""
+    tag = str(value or "").strip().lstrip("#").strip().lower().replace(" ", "-")
+    return tag or None
 
 class ForumCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     """Un appel par liste à chaque mise à jour, catégories en cache."""
@@ -119,6 +126,7 @@ class ForumCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 "id": cid,
                 "name": name,
                 "full_name": f"{parent.get('name')} › {name}" if parent else name,
+                "slug": c.get("slug") or str(cid),
                 "color": f"#{c.get('color') or '8fa0b8'}",
                 "url": f"{BASE_URL}/c/{c.get('slug') or cid}/{cid}",
             }
@@ -189,12 +197,15 @@ class ForumCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     async def _async_update_data(self) -> dict[str, Any]:
         limit = int(self.config_entry.options.get(CONF_TOPICS, DEFAULT_TOPICS))
         category = self.config_entry.options.get(CONF_CATEGORY) or None
+        tag = normalize_tag(self.config_entry.options.get(CONF_TAG))
         cats = await self.categories()
         result: dict[str, Any] = {"updated": datetime.now(UTC).isoformat()}
         try:
-            latest = await self.client.latest(int(category) if category else None)
+            cat = cats.get(int(category)) if category else None
+            latest = await self.client.latest(int(category) if category else None, tag, (cat or {}).get("slug"))
             result["latest"] = self._topics(latest, cats, limit)
-            result["category"] = cats.get(int(category)) if category else None
+            result["category"] = cat
+            result["tag"] = tag
             if self.username:
                 result["mine"] = self._topics(await self.client.created_by(self.username), cats, limit)
         except ForumError as err:
