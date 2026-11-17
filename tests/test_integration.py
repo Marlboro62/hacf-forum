@@ -276,12 +276,13 @@ async def test_optional_features(hass: HomeAssistant, aioclient_mock: AiohttpCli
 
 async def test_account_features(hass: HomeAssistant, aioclient_mock: AiohttpClientMocker) -> None:
     """Avec le compte relié : non lus et nouveaux, suivis, signets, messages privés (clé envoyée)."""
+    # avant /latest.json : le simulateur prend la première adresse qui correspond
+    aioclient_mock.get(f"{F}/latest.json?f=tracked", json=_list(_topic(22, "Suivi")))
     _mock_public(aioclient_mock)
     aioclient_mock.get(f"{F}/session/current.json", json={"current_user": {"username": "Membre", "all_unread_notifications_count": 0}})
     aioclient_mock.get(f"{F}/notifications.json", json={"notifications": []})
     aioclient_mock.get(f"{F}/unread.json", json=_list({**_topic(20, "Non lu", posts=6), "last_read_post_number": 4}))
     aioclient_mock.get(f"{F}/new.json", json=_list({**_topic(21, "Tout neuf", posts=1), "unseen": True}))
-    aioclient_mock.get(f"{F}/latest.json?f=tracked", json=_list(_topic(22, "Suivi")))
     aioclient_mock.get(f"{F}/u/Membre/bookmarks.json", json={"user_bookmark_list": {"bookmarks": [
         {"id": 1, "title": "Carte météo", "name": "À relire", "bookmarkable_url": "/t/carte/30/2",
          "created_at": "2026-11-01T10:00:00.000Z", "reminder_at": "2099-01-01T10:00:00.000Z"}]}})
