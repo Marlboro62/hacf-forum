@@ -117,6 +117,11 @@ class ForumCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         # dernière valeur lue de chaque fonction facultative, gardée si le forum ne répond pas
         self._extra: dict[str, Any] = {}
 
+    async def async_refresh_now(self) -> None:
+        """Actualisation demandée (bouton) : tout est relu, profil et statistiques compris."""
+        self._slow.clear()
+        await self.async_refresh()
+
     def option(self, key: str) -> bool:
         """Interrupteur d'une fonction facultative (désactivée par défaut)."""
         return bool(self.config_entry.options.get(key, False))

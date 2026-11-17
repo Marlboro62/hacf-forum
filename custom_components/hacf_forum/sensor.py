@@ -87,6 +87,20 @@ def _optional_sensors(c: ForumCoordinator) -> list[SensorEntity]:
     return out
 
 
+def device_info(coordinator: ForumCoordinator) -> DeviceInfo:
+    """Appareil commun à toutes les entités de l'intégration."""
+    entry = coordinator.config_entry
+    return DeviceInfo(
+        identifiers={(DOMAIN, entry.entry_id)},
+        name=entry.title,
+        manufacturer="HACF (non officiel)",
+        model="Forum Discourse",
+        sw_version=VERSION,
+        entry_type=DeviceEntryType.SERVICE,
+        configuration_url=BASE_URL,
+    )
+
+
 class ForumEntity(CoordinatorEntity[ForumCoordinator], SensorEntity):
     _attr_has_entity_name = True
     # listes destinées à la carte : pas d'historique dans la base de Home Assistant
@@ -98,15 +112,7 @@ class ForumEntity(CoordinatorEntity[ForumCoordinator], SensorEntity):
         entry = coordinator.config_entry
         self._attr_translation_key = key
         self._attr_unique_id = f"{entry.entry_id}_{key}"
-        self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, entry.entry_id)},
-            name=entry.title,
-            manufacturer="HACF (non officiel)",
-            model="Forum Discourse",
-            sw_version=VERSION,
-            entry_type=DeviceEntryType.SERVICE,
-            configuration_url=BASE_URL,
-        )
+        self._attr_device_info = device_info(coordinator)
 
 
 def _recent(topics: list[dict[str, Any]], hours: int = 24) -> int:

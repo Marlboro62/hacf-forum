@@ -111,6 +111,10 @@ Le nombre de sujets lus sur le forum se règle dans les options de l'intégratio
 - **Actualités du site hacf.fr** (activé par défaut) : le flux est relu toutes les 3 heures ;
 - **Relier** ou **délier** votre compte.
 
+### Actualiser
+
+Le bouton 🔄 en haut de la carte relit le forum tout de suite. L'entité **Actualiser** (`button`) de l'appareil HACF Forum fait la même chose depuis un tableau de bord ou une automatisation, profil et statistiques compris.
+
 ### Fonctions facultatives
 
 **Configurer › Fonctions facultatives** : un interrupteur par fonction, **toutes désactivées par défaut** (chacune ajoute une requête au forum). Chaque fonction activée ajoute un capteur et, pour les listes, un onglet dans la carte.

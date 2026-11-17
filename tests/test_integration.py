@@ -307,3 +307,26 @@ async def test_account_features(hass: HomeAssistant, aioclient_mock: AiohttpClie
     assert state("private_messages").state == "1"
     sent = [c for c in aioclient_mock.mock_calls if str(c[1]).endswith("/unread.json")][-1]
     assert sent[3]["User-Api-Key"] == "cle"
+
+
+async def test_refresh_button(hass: HomeAssistant, aioclient_mock: AiohttpClientMocker) -> None:
+    """Bouton Actualiser : le forum est relu tout de suite, profil compris (sinon une fois par heure)."""
+    _mock_public(aioclient_mock)
+    aioclient_mock.get(f"{F}/u/Membre/summary.json", json={"user_summary": {"likes_received": 1}})
+    aioclient_mock.get(f"{F}/u/Membre.json", json={"user": {"username": "Membre", "trust_level": 1}})
+    aioclient_mock.get(f"{F}/user-badges/Membre.json", json={"badges": [], "user_badges": []})
+    entry = MockConfigEntry(domain=DOMAIN, unique_id="membre", title="Forum HACF (Membre)",
+                            data={"username": "Membre"}, options={"profile": True})
+    entry.add_to_hass(hass)
+    await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+    reg = er.async_get(hass)
+    button = reg.async_get_entity_id("button", DOMAIN, f"{entry.entry_id}_refresh")
+    assert button is not None
+
+    def calls(path: str) -> int:
+        return sum(1 for c in aioclient_mock.mock_calls if str(c[1]).endswith(path))
+
+    latest, summary = calls("/latest.json"), calls("/summary.json")
+    await hass.services.async_call("button", "press", {"entity_id": button}, blocking=True)
+    assert calls("/latest.json") == latest + 1 and calls("/summary.json") == summary + 1
