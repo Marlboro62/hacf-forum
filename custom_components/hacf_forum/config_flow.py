@@ -26,6 +26,12 @@ from .const import (
     BASE_URL,
     CONF_CATEGORY,
     CONF_TAG,
+    ACCOUNT_SWITCHES,
+    CONF_POPULAR_PERIOD,
+    CONF_SEARCH,
+    DEFAULT_POPULAR_PERIOD,
+    PERIODS,
+    PUBLIC_SWITCHES,
     CONF_CLIENT_ID,
     CONF_NEWS,
     CONF_SCAN_MINUTES,
@@ -195,7 +201,27 @@ class HacfForumOptionsFlow(AccountSteps, OptionsFlow):
 
     async def async_step_init(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         has_key = bool(self.config_entry.data.get(CONF_USER_API_KEY))
-        return self.async_show_menu(step_id="init", menu_options=["settings", "unlink" if has_key else "account"])
+        return self.async_show_menu(step_id="init", menu_options=["settings", "features", "unlink" if has_key else "account"])
+
+    async def async_step_features(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+        """Fonctions facultatives : un interrupteur chacune (toutes désactivées par défaut)."""
+        if user_input is not None:
+            user_input[CONF_SEARCH] = str(user_input.get(CONF_SEARCH) or "").strip()
+            return self.async_create_entry(data={**self.config_entry.options, **user_input})
+        opts = self.config_entry.options
+        fields: dict[Any, Any] = {}
+        for key in PUBLIC_SWITCHES:
+            fields[vol.Optional(key, default=bool(opts.get(key, False)))] = selector.BooleanSelector()
+        fields[vol.Optional(CONF_POPULAR_PERIOD, default=opts.get(CONF_POPULAR_PERIOD) or DEFAULT_POPULAR_PERIOD)] = selector.SelectSelector(
+            selector.SelectSelectorConfig(options=list(PERIODS), translation_key=CONF_POPULAR_PERIOD,
+                                          mode=selector.SelectSelectorMode.DROPDOWN)
+        )
+        fields[vol.Optional(CONF_SEARCH, description={"suggested_value": opts.get(CONF_SEARCH) or ""})] = selector.TextSelector()
+        # avec le compte relié seulement (lecture seule, droits déjà accordés)
+        if self.config_entry.data.get(CONF_USER_API_KEY):
+            for key in ACCOUNT_SWITCHES:
+                fields[vol.Optional(key, default=bool(opts.get(key, False)))] = selector.BooleanSelector()
+        return self.async_show_form(step_id="features", data_schema=vol.Schema(fields))
 
     async def async_step_settings(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         if user_input is not None:

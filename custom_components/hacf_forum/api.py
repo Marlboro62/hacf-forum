@@ -79,6 +79,54 @@ class ForumClient:
         """Étiquettes du forum, avec leur nombre de sujets."""
         return await self._get("/tags.json")
 
+    async def top(self, period: str = "weekly") -> dict[str, Any]:
+        """Sujets les plus populaires sur une période (daily, weekly, monthly, yearly)."""
+        return await self._get(f"/top.json?period={quote(period)}")
+
+    async def search(self, query: str) -> dict[str, Any]:
+        """Recherche du forum, résultats les plus récents d'abord."""
+        return await self._get(f"/search.json?q={quote(query + ' order:latest')}")
+
+    async def posts(self) -> dict[str, Any]:
+        """Derniers messages publiés sur le forum, toutes catégories."""
+        return await self._get("/posts.json")
+
+    async def user_summary(self, username: str) -> dict[str, Any]:
+        """Résumé public d'un membre : messages, j'aime, jours de visite, solutions."""
+        return await self._get(f"/u/{quote(username)}/summary.json")
+
+    async def user_badges(self, username: str) -> dict[str, Any]:
+        """Badges obtenus par un membre."""
+        return await self._get(f"/user-badges/{quote(username)}.json")
+
+    async def about(self) -> dict[str, Any]:
+        """Page « À propos » du forum : statistiques (membres, sujets, messages, actifs)."""
+        return await self._get("/about.json")
+
+    async def directory(self, period: str = "weekly") -> dict[str, Any]:
+        """Annuaire des membres, classés par j'aime reçus sur la période."""
+        return await self._get(f"/directory_items.json?period={quote(period)}&order=likes_received")
+
+    async def unread(self) -> dict[str, Any]:
+        """Sujets suivis avec des messages non lus (compte relié)."""
+        return await self._get("/unread.json", auth=True)
+
+    async def new_topics(self) -> dict[str, Any]:
+        """Sujets nouveaux pour le membre (compte relié)."""
+        return await self._get("/new.json", auth=True)
+
+    async def tracked(self) -> dict[str, Any]:
+        """Derniers sujets des sujets et catégories suivis par le membre (compte relié)."""
+        return await self._get("/latest.json?f=tracked", auth=True)
+
+    async def bookmarks(self, username: str) -> dict[str, Any]:
+        """Signets du membre (compte relié)."""
+        return await self._get(f"/u/{quote(username)}/bookmarks.json", auth=True)
+
+    async def private_messages(self, username: str) -> dict[str, Any]:
+        """Messages privés du membre (compte relié)."""
+        return await self._get(f"/topics/private-messages/{quote(username)}.json", auth=True)
+
     async def created_by(self, username: str) -> dict[str, Any]:
         """Sujets ouverts par un membre."""
         return await self._get(f"/topics/created-by/{quote(username)}.json")

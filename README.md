@@ -111,6 +111,27 @@ Le nombre de sujets lus sur le forum se règle dans les options de l'intégratio
 - **Actualités du site hacf.fr** (activé par défaut) : le flux est relu toutes les 3 heures ;
 - **Relier** ou **délier** votre compte.
 
+### Fonctions facultatives
+
+**Configurer › Fonctions facultatives** : un interrupteur par fonction, **toutes désactivées par défaut** (chacune ajoute une requête au forum). Chaque fonction activée ajoute un capteur et, pour les listes, un onglet dans la carte.
+
+| Interrupteur | Ce que ça ajoute | Requête |
+| --- | --- | --- |
+| Sujets populaires | Onglet « Populaires » (jour, semaine, mois ou année) | à chaque mise à jour |
+| Sujets sans réponse | Onglet « Sans réponse » | aucune (tirés des derniers sujets) |
+| Masquer les sujets résolus | Retire les sujets « Résolu » de l'onglet Sujets | aucune |
+| Derniers messages | Onglet « Messages » : dernières réponses avec un extrait | à chaque mise à jour |
+| Recherche suivie | Onglet « Recherche » pour un mot (par exemple `linky`) ; vide : désactivée | à chaque mise à jour |
+| Mon profil | Capteurs : j'aime reçus et donnés, messages, sujets, jours de visite, solutions, niveau de confiance, badges | une fois par heure |
+| Statistiques du forum | Capteurs : membres, membres actifs (7 jours), sujets, messages | une fois par heure |
+| Meilleurs contributeurs | Capteur : membre le plus aimé de la semaine, les dix premiers en attribut | une fois par heure |
+| Sujets non lus et nouveaux | Onglet « Non lus » et deux capteurs (compte relié) | à chaque mise à jour |
+| Sujets suivis | Onglet « Suivis » (compte relié) | à chaque mise à jour |
+| Signets | Onglet « Signets », avec leur rappel (compte relié) | à chaque mise à jour |
+| Messages privés | Onglet « Privés » ; le capteur compte les discussions non lues (compte relié) | à chaque mise à jour |
+
+Les quatre dernières n'apparaissent que si votre compte est relié (lecture seule, droits déjà accordés). Dans la carte, chaque onglet peut être masqué (`show_popular`, `show_unanswered`, `show_search`, `show_posts`, `show_unread`, `show_tracked`, `show_bookmarks`, `show_messages`).
+
 ## Capteurs
 
 | Capteur | État | Attributs |
@@ -119,6 +140,9 @@ Le nombre de sujets lus sur le forum se règle dans les options de l'intégratio
 | Mes sujets | Nombre de vos sujets | `topics`, `username`, `forum_url` |
 | Notifications | Notifications non lues | `notifications`, `account`, `forum_url` |
 | Actualités hacf.fr | Date du dernier article | `articles`, `last_title`, `news_url` |
+| Fonctions facultatives (listes) | Nombre d'éléments (messages privés : discussions non lues) | `topics`, `posts` ou `bookmarks`, `forum_url` |
+| Profil et statistiques | Valeur (badges : nombre de badges) | `badges`, `last_badge` pour les badges |
+| Contributeur de la semaine | Pseudo du premier | `contributors`, `forum_url` |
 
 Les listes (`topics`, `notifications`, `articles`) ne sont pas enregistrées dans l'historique de Home Assistant. Le capteur **Notifications** peut servir à une automatisation (par exemple, une notification sur le téléphone quand il augmente), tout comme **Actualités hacf.fr**, qui change à chaque nouvel article.
 

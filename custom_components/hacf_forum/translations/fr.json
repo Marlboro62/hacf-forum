@@ -56,7 +56,8 @@
       "init": {
         "title": "Forum HACF",
         "menu_options": {
-          "settings": "Catégorie et affichage",
+          "settings": "Catégorie, étiquette et affichage",
+          "features": "Fonctions facultatives",
           "account": "Relier mon compte HACF (notifications)",
           "unlink": "Délier mon compte HACF"
         }
@@ -76,6 +77,40 @@
           "topics": "Sujets gardés dans chaque liste (5 à 50).",
           "scan_minutes": "En minutes (5 minimum, pour ménager le forum).",
           "news": "Articles de la rubrique « Actualités » de hacf.fr, relus toutes les 3 heures."
+        }
+      },
+      "features": {
+        "title": "Fonctions facultatives",
+        "description": "Chaque interrupteur ajoute un capteur (et un onglet dans la carte). Toutes sont désactivées par défaut : chacune ajoute une requête au forum.",
+        "data": {
+          "popular": "Sujets populaires",
+          "unanswered": "Sujets sans réponse",
+          "hide_solved": "Masquer les sujets résolus",
+          "latest_posts": "Derniers messages",
+          "profile": "Mon profil (j'aime, messages, badges…)",
+          "forum_stats": "Statistiques du forum",
+          "contributors": "Meilleurs contributeurs de la semaine",
+          "popular_period": "Période des sujets populaires",
+          "search": "Recherche suivie",
+          "unread_new": "Sujets non lus et nouveaux (compte relié)",
+          "tracked": "Sujets suivis (compte relié)",
+          "bookmarks": "Signets (compte relié)",
+          "private_messages": "Messages privés (compte relié)"
+        },
+        "data_description": {
+          "popular": "Onglet « Populaires » : les sujets les plus actifs sur la période choisie.",
+          "unanswered": "Onglet « Sans réponse » : tiré de la liste des derniers sujets, sans requête de plus.",
+          "hide_solved": "Retire les sujets marqués « Résolu » de l'onglet Sujets.",
+          "latest_posts": "Onglet « Messages » : les dernières réponses, une par ligne, avec un extrait.",
+          "profile": "Capteurs de votre profil (pseudo requis), relus une fois par heure.",
+          "forum_stats": "Membres, actifs sur 7 jours, sujets et messages, relus une fois par heure.",
+          "contributors": "Les dix membres les plus aimés de la semaine, relus une fois par heure.",
+          "popular_period": "Jour, semaine, mois ou année.",
+          "search": "Facultatif, par exemple « linky » : onglet « Recherche » avec les sujets trouvés, les plus récents d'abord. Vide : désactivée.",
+          "unread_new": "Les vrais compteurs du forum pour votre compte.",
+          "tracked": "Seulement les sujets et catégories que vous suivez sur le forum.",
+          "bookmarks": "Vos signets, avec leur rappel.",
+          "private_messages": "Vos discussions privées ; le capteur compte celles qui ont des messages non lus."
         }
       },
       "account": {
@@ -156,6 +191,82 @@
             "name": "Lien des actualités"
           }
         }
+      },
+      "popular_topics": {
+        "name": "Sujets populaires"
+      },
+      "unanswered_topics": {
+        "name": "Sujets sans réponse"
+      },
+      "search_results": {
+        "name": "Recherche suivie"
+      },
+      "latest_posts": {
+        "name": "Derniers messages"
+      },
+      "likes_received": {
+        "name": "J'aime reçus"
+      },
+      "likes_given": {
+        "name": "J'aime donnés"
+      },
+      "posts_count": {
+        "name": "Messages publiés"
+      },
+      "topics_count": {
+        "name": "Sujets créés"
+      },
+      "days_visited": {
+        "name": "Jours de visite"
+      },
+      "solutions": {
+        "name": "Solutions acceptées"
+      },
+      "trust_level": {
+        "name": "Niveau de confiance"
+      },
+      "badges": {
+        "name": "Badges"
+      },
+      "forum_members": {
+        "name": "Membres du forum"
+      },
+      "forum_active_users": {
+        "name": "Membres actifs (7 jours)"
+      },
+      "forum_topics": {
+        "name": "Sujets du forum"
+      },
+      "forum_posts": {
+        "name": "Messages du forum"
+      },
+      "top_contributor": {
+        "name": "Contributeur de la semaine"
+      },
+      "unread_topics": {
+        "name": "Sujets non lus"
+      },
+      "new_topics": {
+        "name": "Nouveaux sujets"
+      },
+      "tracked_topics": {
+        "name": "Sujets suivis"
+      },
+      "bookmarks": {
+        "name": "Signets"
+      },
+      "private_messages": {
+        "name": "Messages privés"
+      }
+    }
+  },
+  "selector": {
+    "popular_period": {
+      "options": {
+        "daily": "Jour",
+        "weekly": "Semaine",
+        "monthly": "Mois",
+        "yearly": "Année"
       }
     }
   }
