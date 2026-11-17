@@ -258,6 +258,11 @@
       "private_messages": {
         "name": "Messages privés"
       }
+    },
+    "button": {
+      "refresh": {
+        "name": "Actualiser"
+      }
     }
   },
   "selector": {

@@ -29,6 +29,8 @@ from .const import (
     ACCOUNT_SWITCHES,
     CONF_POPULAR_PERIOD,
     CONF_SEARCH,
+    CONF_POPULAR,
+    CONF_POSTS,
     DEFAULT_POPULAR_PERIOD,
     PERIODS,
     PUBLIC_SWITCHES,
@@ -212,11 +214,14 @@ class HacfForumOptionsFlow(AccountSteps, OptionsFlow):
         fields: dict[Any, Any] = {}
         for key in PUBLIC_SWITCHES:
             fields[vol.Optional(key, default=bool(opts.get(key, False)))] = selector.BooleanSelector()
-        fields[vol.Optional(CONF_POPULAR_PERIOD, default=opts.get(CONF_POPULAR_PERIOD) or DEFAULT_POPULAR_PERIOD)] = selector.SelectSelector(
-            selector.SelectSelectorConfig(options=list(PERIODS), translation_key=CONF_POPULAR_PERIOD,
-                                          mode=selector.SelectSelectorMode.DROPDOWN)
-        )
-        fields[vol.Optional(CONF_SEARCH, description={"suggested_value": opts.get(CONF_SEARCH) or ""})] = selector.TextSelector()
+            if key == CONF_POPULAR:
+                # période juste sous son interrupteur
+                fields[vol.Optional(CONF_POPULAR_PERIOD, default=opts.get(CONF_POPULAR_PERIOD) or DEFAULT_POPULAR_PERIOD)] = selector.SelectSelector(
+                    selector.SelectSelectorConfig(options=list(PERIODS), translation_key=CONF_POPULAR_PERIOD,
+                                                  mode=selector.SelectSelectorMode.DROPDOWN)
+                )
+            elif key == CONF_POSTS:
+                fields[vol.Optional(CONF_SEARCH, description={"suggested_value": opts.get(CONF_SEARCH) or ""})] = selector.TextSelector()
         # avec le compte relié seulement (lecture seule, droits déjà accordés)
         if self.config_entry.data.get(CONF_USER_API_KEY):
             for key in ACCOUNT_SWITCHES:

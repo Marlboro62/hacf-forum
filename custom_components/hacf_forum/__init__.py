@@ -19,7 +19,7 @@ from .const import CARD_FILE, CARD_URL, CONF_CLIENT_ID, CONF_USER_API_KEY, DOMAI
 from .coordinator import ForumCoordinator
 
 _LOGGER = logging.getLogger(__name__)
-PLATFORMS = [Platform.SENSOR]
+PLATFORMS = [Platform.BUTTON, Platform.SENSOR]
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
 type ForumConfigEntry = ConfigEntry[ForumCoordinator]

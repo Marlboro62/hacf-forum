@@ -8,7 +8,7 @@
  * © 2026 Marlboro62. Tous droits réservés : copie, diffusion et modification interdites sans accord écrit (voir LICENSE).
  */
 (() => {
-const CARD_VERSION = "0.4.0b1";
+const CARD_VERSION = "0.4.0b2";
 const FORUM = "https://forum.hacf.fr";
 const SITE = "https://www.hacf.fr";
 
@@ -45,7 +45,7 @@ const LIST_KEYS = {
 const I18N = {
   fr: {
     title: "Forum HACF", all: "Tout le forum", latest: "Sujets", mine: "Mes sujets", notifs: "Notifications",
-    open: "Ouvrir le forum", seen: "Tout marquer comme vu", below: "{n} nouveau(x) plus bas", none_latest: "Aucun sujet pour le moment.",
+    open: "Ouvrir le forum", refresh: "Actualiser maintenant", seen: "Tout marquer comme vu", below: "{n} nouveau(x) plus bas", none_latest: "Aucun sujet pour le moment.",
     none_mine: "Aucun sujet ouvert par ce pseudo.", none_notifs: "Aucune notification.", unread: "non lues",
     news: "nouveaux", new_badge: "nouveau", replies: "réponses", reply: "réponse", views: "vues", likes: "j'aime",
     by: "dernier message de", updated: "Mis à jour", unofficial: "Intégration non officielle",
@@ -70,7 +70,7 @@ const I18N = {
   },
   en: {
     title: "HACF forum", all: "Whole forum", latest: "Topics", mine: "My topics", notifs: "Notifications",
-    open: "Open the forum", seen: "Mark all as seen", below: "{n} new below", none_latest: "No topics yet.",
+    open: "Open the forum", refresh: "Refresh now", seen: "Mark all as seen", below: "{n} new below", none_latest: "No topics yet.",
     none_mine: "No topics opened by this user.", none_notifs: "No notifications.", unread: "unread",
     news: "new", new_badge: "new", replies: "replies", reply: "reply", views: "views", likes: "likes",
     by: "last post by", updated: "Updated", unofficial: "Unofficial integration",
@@ -95,7 +95,7 @@ const I18N = {
   },
   pl: {
     title: "Forum HACF", all: "Całe forum", latest: "Tematy", mine: "Moje tematy", notifs: "Powiadomienia",
-    open: "Otwórz forum", seen: "Oznacz wszystko jako przejrzane", below: "{n} nowe poniżej", none_latest: "Brak tematów.",
+    open: "Otwórz forum", refresh: "Odśwież teraz", seen: "Oznacz wszystko jako przejrzane", below: "{n} nowe poniżej", none_latest: "Brak tematów.",
     none_mine: "Brak tematów tego użytkownika.", none_notifs: "Brak powiadomień.", unread: "nieprzeczytane",
     news: "nowe", new_badge: "nowe", replies: "odpowiedzi", reply: "odpowiedź", views: "wyświetleń", likes: "polubień",
     by: "ostatni post:", updated: "Zaktualizowano", unofficial: "Integracja nieoficjalna",
@@ -227,6 +227,7 @@ class HacfForumCard extends HTMLElement {
         const tab = ev.target.closest?.("[data-tab]");
         if (tab) { this._tab = tab.dataset.tab; store.set("hacf-forum:tab", this._tab); this._sig = null; this._render(); return; }
         if (ev.target.closest?.("[data-act=seen]")) { this._markSeen(); this._sig = null; this._render(); }
+        if (ev.target.closest?.("[data-act=refresh]")) this._refresh();
         if (ev.target.closest?.("[data-act=below]")) {
           const list = this.shadowRoot.querySelector(".list.scroll");
           const first = list && [...list.querySelectorAll(".row.new")].find((r) => r.offsetTop >= list.scrollTop + list.clientHeight - 4);
@@ -280,9 +281,26 @@ class HacfForumCard extends HTMLElement {
       else if (e.translation_key === "my_topics") out.mine ||= id;
       else if (e.translation_key === "notifications") out.notifs ||= id;
       else if (e.translation_key === "news") out.news ||= id;
+      else if (e.translation_key === "refresh" && id.startsWith("button.")) out.refresh ||= id;
       else if (LIST_KEYS[e.translation_key]) out[LIST_KEYS[e.translation_key]] ||= id;
     }
     return out;
+  }
+
+  /** Actualiser : bouton de l'intégration (tout est relu), sinon mise à jour du capteur des derniers sujets. */
+  _refresh() {
+    const ents = this._entities();
+    if (this._busy || !ents.latest) return;
+    const before = this._hass.states[ents.latest]?.last_updated;
+    const call = ents.refresh ? this._hass.callService("button", "press", { entity_id: ents.refresh })
+      : this._hass.callService("homeassistant", "update_entity", { entity_id: ents.latest });
+    this._busy = { before, until: Date.now() + 20000 };
+    this._sig = null; this._render();
+    const done = () => { this._busy = null; this._sig = null; this._render(); };
+    // l'appel se termine une fois le forum relu (ou le capteur mis à jour) : fin de l'animation
+    Promise.resolve(call).then(done, done);
+    clearTimeout(this._busyTimer);
+    this._busyTimer = setTimeout(done, 20000);
   }
 
   _seenKey(kind) {
@@ -392,7 +410,8 @@ class HacfForumCard extends HTMLElement {
     const c = this._config, T = this._t();
     const ents = this._entities();
     const st = (id) => (id ? this._hass.states[id] : undefined);
-    const sig = [c.theme, this._hass.themes?.darkMode, this._tab, Math.floor(Date.now() / 60000), ...Object.values(ents).map((id) => st(id)?.last_updated)].join("|");
+    if (this._busy && st(ents.latest)?.last_updated !== this._busy.before) { this._busy = null; clearTimeout(this._busyTimer); }
+    const sig = [!!this._busy, c.theme, this._hass.themes?.darkMode, this._tab, Math.floor(Date.now() / 60000), ...Object.values(ents).map((id) => st(id)?.last_updated)].join("|");
     if (sig === this._sig) return;
     this._sig = sig;
 
@@ -481,7 +500,7 @@ class HacfForumCard extends HTMLElement {
       let items = a.topics || [];
       let row = (t) => this._topicRow(t, false);
       if (this._tab === "popular") sub = T.popular_sub.replace("{p}", T.period[a.popular_period] || "");
-      else if (this._tab === "unanswered") sub = T.unanswered_sub;
+      else if (this._tab === "unanswered") sub = [T.unanswered_sub, followed].filter(Boolean).join(" · ");
       else if (this._tab === "search") sub = T.search_sub.replace("{q}", a.search_query || "");
       else if (this._tab === "posts") { sub = T.posts_sub; items = a.posts || []; row = (p) => this._postRow(p); }
       else if (this._tab === "unread") { sub = T.unread_sub; items = unreadList; row = (t) => this._topicRow(t, true, t.unread ? `+${t.unread}` : T.new_badge); }
@@ -559,7 +578,8 @@ class HacfForumCard extends HTMLElement {
     this.shadowRoot.innerHTML = `${STYLE}<ha-card class="${this._themeClass()}">
       <header><div class="brand"><span class="logo"><ha-icon icon="mdi:forum"></ha-icon></span>
         <div><div class="title">${esc(title)}</div>${sub ? `<div class="sub">${esc(sub)}</div>` : ""}</div></div>
-        <a class="go" href="${esc(link)}" target="_blank" rel="noopener noreferrer" title="${esc(T.open)}" aria-label="${esc(T.open)}"><ha-icon icon="mdi:open-in-new"></ha-icon></a></header>
+        <span class="hd-acts"><button class="go rf${this._busy ? " busy" : ""}" data-act="refresh" title="${esc(T.refresh)}" aria-label="${esc(T.refresh)}"${this._busy ? " disabled" : ""}><ha-icon icon="mdi:refresh"></ha-icon></button>
+        <a class="go" href="${esc(link)}" target="_blank" rel="noopener noreferrer" title="${esc(T.open)}" aria-label="${esc(T.open)}"><ha-icon icon="mdi:open-in-new"></ha-icon></a></span></header>
       ${body}</ha-card>`;
   }
 }
@@ -582,6 +602,12 @@ header { display: flex; align-items: center; justify-content: space-between; gap
 .sub { font-size: .76rem; color: var(--f-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .go { color: var(--f-muted); display: grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; }
 .go:hover, .go:focus-visible { color: var(--f-accent); background: var(--f-surface); outline: none; }
+.hd-acts { display: flex; align-items: center; gap: 2px; flex: none; }
+button.go { border: 0; background: none; cursor: pointer; padding: 0; font: inherit; }
+button.go.busy { cursor: progress; color: var(--f-accent); }
+button.go.busy ha-icon { animation: f-spin 1s linear infinite; }
+@keyframes f-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { button.go.busy ha-icon { animation: none; } }
 .tabs { display: flex; gap: 6px; padding: 4px 12px 8px; flex-wrap: wrap; }
 .tab { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--f-line);
   background: var(--f-surface); color: var(--f-text); font: inherit; font-size: .82rem; cursor: pointer; }
