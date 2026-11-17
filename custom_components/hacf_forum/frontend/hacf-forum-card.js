@@ -8,7 +8,7 @@
  * © 2026 Marlboro62. Tous droits réservés : copie, diffusion et modification interdites sans accord écrit (voir LICENSE).
  */
 (() => {
-const CARD_VERSION = "0.3.2b1";
+const CARD_VERSION = "0.4.0b1";
 const FORUM = "https://forum.hacf.fr";
 const SITE = "https://www.hacf.fr";
 
@@ -18,11 +18,26 @@ const DEFAULTS = {
   show_mine: true,
   show_notifications: true,
   show_news: true,
+  // onglets des fonctions facultatives : affichés quand leur interrupteur est activé dans l'intégration
+  show_popular: true,
+  show_unanswered: true,
+  show_search: true,
+  show_posts: true,
+  show_unread: true,
+  show_tracked: true,
+  show_bookmarks: true,
+  show_messages: true,
   max_items: 10,
   scroll: true,
   show_avatars: true,
   theme: "v2",
   language: "auto",
+};
+
+/* Capteurs des fonctions facultatives (clé de traduction → onglet) */
+const LIST_KEYS = {
+  popular_topics: "popular", unanswered_topics: "unanswered", search_results: "search", latest_posts: "posts",
+  unread_topics: "unread", new_topics: "fresh", tracked_topics: "tracked", bookmarks: "bookmarks", private_messages: "pms",
 };
 
 /* ---------------------------------------------------------------- textes */
@@ -38,6 +53,10 @@ const I18N = {
     no_account: "Reliez votre compte HACF pour voir vos notifications : Paramètres › Appareils et services › HACF Forum › Configurer.",
     pinned: "Épinglé", closed: "Fermé", solved: "Résolu",
     actus: "Actus", news_sub: "Actualités de hacf.fr", none_news: "Aucune actualité pour le moment.", author: "par",
+    popular: "Populaires", unanswered: "Sans réponse", search: "Recherche", posts: "Messages", unread_tab: "Non lus", tracked: "Suivis",
+    bookmarks: "Signets", pms: "Privés", none_list: "Rien pour le moment.", reminder: "rappel", period: { daily: "du jour", weekly: "de la semaine", monthly: "du mois", yearly: "de l'année" },
+    popular_sub: "Sujets populaires {p}", unanswered_sub: "Sujets sans réponse", search_sub: "Recherche : {q}", posts_sub: "Derniers messages",
+    unread_sub: "Non lus et nouveaux", tracked_sub: "Sujets suivis", bookmarks_sub: "Mes signets", pms_sub: "Messages privés",
     n: {
       mentioned: "{u} vous a mentionné", replied: "{u} a répondu", quoted: "{u} vous a cité", edited: "{u} a modifié votre message",
       liked: "{u} a aimé votre message", liked_consolidated: "{c} j'aime sur vos messages", private_message: "Message privé de {u}",
@@ -59,6 +78,10 @@ const I18N = {
     no_account: "Link your HACF account to see your notifications: Settings › Devices & services › HACF Forum › Configure.",
     pinned: "Pinned", closed: "Closed", solved: "Solved",
     actus: "News", news_sub: "hacf.fr news", none_news: "No news yet.", author: "by",
+    popular: "Popular", unanswered: "Unanswered", search: "Search", posts: "Posts", unread_tab: "Unread", tracked: "Tracked",
+    bookmarks: "Bookmarks", pms: "Messages", none_list: "Nothing yet.", reminder: "reminder", period: { daily: "today", weekly: "this week", monthly: "this month", yearly: "this year" },
+    popular_sub: "Popular topics {p}", unanswered_sub: "Unanswered topics", search_sub: "Search: {q}", posts_sub: "Latest posts",
+    unread_sub: "Unread and new", tracked_sub: "Tracked topics", bookmarks_sub: "My bookmarks", pms_sub: "Private messages",
     n: {
       mentioned: "{u} mentioned you", replied: "{u} replied", quoted: "{u} quoted you", edited: "{u} edited your post",
       liked: "{u} liked your post", liked_consolidated: "{c} likes on your posts", private_message: "Private message from {u}",
@@ -80,6 +103,10 @@ const I18N = {
     no_account: "Połącz konto HACF, aby widzieć powiadomienia: Ustawienia › Urządzenia i usługi › HACF Forum › Konfiguruj.",
     pinned: "Przypięty", closed: "Zamknięty", solved: "Rozwiązany",
     actus: "Aktualności", news_sub: "Aktualności hacf.fr", none_news: "Brak aktualności.", author: "autor:",
+    popular: "Popularne", unanswered: "Bez odpowiedzi", search: "Szukaj", posts: "Posty", unread_tab: "Nieprzeczytane", tracked: "Śledzone",
+    bookmarks: "Zakładki", pms: "Prywatne", none_list: "Na razie nic.", reminder: "przypomnienie", period: { daily: "dnia", weekly: "tygodnia", monthly: "miesiąca", yearly: "roku" },
+    popular_sub: "Popularne tematy {p}", unanswered_sub: "Tematy bez odpowiedzi", search_sub: "Szukaj: {q}", posts_sub: "Najnowsze posty",
+    unread_sub: "Nieprzeczytane i nowe", tracked_sub: "Śledzone tematy", bookmarks_sub: "Moje zakładki", pms_sub: "Wiadomości prywatne",
     n: {
       mentioned: "{u} wspomniał o Tobie", replied: "{u} odpowiedział", quoted: "{u} zacytował Cię", edited: "{u} edytował Twój post",
       liked: "{u} polubił Twój post", liked_consolidated: "{c} polubień Twoich postów", private_message: "Wiadomość prywatna od {u}",
@@ -160,6 +187,14 @@ class HacfForumCard extends HTMLElement {
           { name: "show_mine", selector: { boolean: {} } },
           { name: "show_notifications", selector: { boolean: {} } },
           { name: "show_news", selector: { boolean: {} } },
+          { name: "show_popular", selector: { boolean: {} } },
+          { name: "show_unanswered", selector: { boolean: {} } },
+          { name: "show_search", selector: { boolean: {} } },
+          { name: "show_posts", selector: { boolean: {} } },
+          { name: "show_unread", selector: { boolean: {} } },
+          { name: "show_tracked", selector: { boolean: {} } },
+          { name: "show_bookmarks", selector: { boolean: {} } },
+          { name: "show_messages", selector: { boolean: {} } },
           { name: "show_avatars", selector: { boolean: {} } },
         ] },
         { name: "max_items", selector: { number: { min: 3, max: 50, mode: "box" } } },
@@ -174,7 +209,9 @@ class HacfForumCard extends HTMLElement {
       ],
       computeLabel: (s) => ({
         title: "Titre (Forum HACF par défaut)", show_latest: "Onglet Sujets", show_mine: "Onglet Mes sujets",
-        show_notifications: "Onglet Notifications", show_news: "Onglet Actus (hacf.fr)", show_avatars: "Avatars des membres", max_items: "Nombre de lignes affichées",
+        show_notifications: "Onglet Notifications", show_news: "Onglet Actus (hacf.fr)",
+        show_popular: "Onglet Populaires", show_unanswered: "Onglet Sans réponse", show_search: "Onglet Recherche", show_posts: "Onglet Messages",
+        show_unread: "Onglet Non lus", show_tracked: "Onglet Suivis", show_bookmarks: "Onglet Signets", show_messages: "Onglet Messages privés", show_avatars: "Avatars des membres", max_items: "Nombre de lignes affichées",
         scroll: "Faire défiler la liste pour voir tous les sujets au-delà de ces lignes",
         theme: "Couleurs de la carte", language: "Langue",
       }[s.name] || s.name),
@@ -243,6 +280,7 @@ class HacfForumCard extends HTMLElement {
       else if (e.translation_key === "my_topics") out.mine ||= id;
       else if (e.translation_key === "notifications") out.notifs ||= id;
       else if (e.translation_key === "news") out.news ||= id;
+      else if (LIST_KEYS[e.translation_key]) out[LIST_KEYS[e.translation_key]] ||= id;
     }
     return out;
   }
@@ -297,6 +335,7 @@ class HacfForumCard extends HTMLElement {
       ${avatar}
       <div class="rb">
         <div class="rt">${flags}<span>${esc(t.title)}</span>${isNew ? `<em>${esc(extra || T.new_badge)}</em>` : ""}</div>
+        ${t.excerpt ? `<div class="sum">${esc(t.excerpt)}</div>` : ""}
         <div class="rm">${t.category ? `<span class="cat"><i style="background:${safeColor(t.category_color)}"></i>${esc(t.category)}</span>` : ""}
           <span><ha-icon icon="mdi:reply"></ha-icon>${replies}</span><span><ha-icon icon="mdi:eye-outline"></ha-icon>${Number(t.views) || 0}</span>
           ${t.likes ? `<span><ha-icon icon="mdi:heart-outline"></ha-icon>${Number(t.likes)}</span>` : ""}
@@ -316,6 +355,27 @@ class HacfForumCard extends HTMLElement {
         ${a.summary ? `<div class="sum">${esc(a.summary)}</div>` : ""}
         <div class="rm"><span class="when">${esc(this._ago(a.published_at))}${a.author ? ` · ${esc(T.author)} ${esc(a.author)}` : ""}</span></div>
       </div></a>`;
+  }
+
+  _postRow(p) {
+    const T = this._t(), c = this._config;
+    const avatar = c.show_avatars && safeImg(p.avatar) ? `<img class="av" src="${esc(safeImg(p.avatar))}" alt="" loading="lazy" referrerpolicy="no-referrer">` : `<span class="av av-i"><ha-icon icon="mdi:account"></ha-icon></span>`;
+    return `<a class="row" href="${esc(safeUrl(p.url))}" target="_blank" rel="noopener noreferrer">
+      ${avatar}
+      <div class="rb"><div class="rt"><span>${esc(p.title)}</span></div>
+        ${p.excerpt ? `<div class="sum">${esc(p.excerpt)}</div>` : ""}
+        <div class="rm">${p.category ? `<span class="cat"><i style="background:${safeColor(p.category_color)}"></i>${esc(p.category)}</span>` : ""}
+          <span class="when">${esc(this._ago(p.created_at))}${p.user ? ` · ${esc(T.author)} ${esc(p.user)}` : ""}</span></div></div></a>`;
+  }
+
+  _bookmarkRow(b) {
+    const T = this._t();
+    const remind = b.reminder_at && new Date(b.reminder_at).getTime() > Date.now();
+    return `<a class="row${remind ? " new" : ""}" href="${esc(safeUrl(b.url))}" target="_blank" rel="noopener noreferrer">
+      <span class="av av-i"><ha-icon icon="${remind ? "mdi:bookmark-clock" : "mdi:bookmark"}"></ha-icon></span>
+      <div class="rb"><div class="rt"><span>${esc(b.name || b.title)}</span></div>
+        ${b.name && b.title ? `<div class="sum">${esc(b.title)}</div>` : b.excerpt ? `<div class="sum">${esc(b.excerpt)}</div>` : ""}
+        <div class="rm"><span class="when">${esc(this._ago(b.created_at))}${remind ? ` · ${esc(T.reminder)} ${esc(this._ago(b.reminder_at))}` : ""}</span></div></div></a>`;
   }
 
   _notifRow(n) {
@@ -373,6 +433,22 @@ class HacfForumCard extends HTMLElement {
     if (c.show_mine !== false && mine) tabs.push(["mine", "mdi:account-voice", T.mine, newMine]);
     if (c.show_notifications !== false) tabs.push(["notifs", unread ? "mdi:bell-badge" : "mdi:bell", T.notifs, unread]);
     if (c.show_news !== false && news) tabs.push(["news", "mdi:newspaper-variant-outline", T.actus, newNews]);
+    // fonctions facultatives : un onglet par capteur présent
+    const attrs = (k) => st(ents[k])?.attributes || null;
+    const unreadList = [...(attrs("unread")?.topics || []), ...(attrs("fresh")?.topics || []).filter((t) => !(attrs("unread")?.topics || []).some((u) => u.id === t.id))];
+    const extraTabs = [
+      ["popular", "show_popular", "mdi:fire", T.popular, 0],
+      ["unanswered", "show_unanswered", "mdi:help-circle-outline", T.unanswered, 0],
+      ["search", "show_search", "mdi:magnify", T.search, 0],
+      ["posts", "show_posts", "mdi:message-reply-text-outline", T.posts, 0],
+      ["unread", "show_unread", "mdi:email-mark-as-unread", T.unread_tab, unreadList.length],
+      ["tracked", "show_tracked", "mdi:eye-outline", T.tracked, 0],
+      ["bookmarks", "show_bookmarks", "mdi:bookmark-outline", T.bookmarks, 0],
+      ["pms", "show_messages", "mdi:email-outline", T.pms, Number(st(ents.pms)?.state) || 0],
+    ];
+    for (const [k, opt, icon, label, n] of extraTabs) {
+      if (c[opt] !== false && (ents[k] || (k === "unread" && ents.fresh))) tabs.push([k, icon, label, n]);
+    }
     if (!this._tab) this._tab = store.get("hacf-forum:tab", "latest");
     if (!tabs.some(([k]) => k === this._tab)) this._tab = tabs[0]?.[0] || "latest";
 
@@ -397,6 +473,23 @@ class HacfForumCard extends HTMLElement {
       hidden = articles.slice(max).filter(isNewArticle).length;
       body = rows.length ? rows.join("") : `<div class="none">${esc(T.none_news)}</div>`;
       canSee = true;
+    } else if (this._tab !== "notifs") {
+      // onglets des fonctions facultatives
+      const a = attrs(this._tab === "unread" && !ents.unread ? "fresh" : this._tab) || {};
+      const none = `<div class="none">${esc(T.none_list)}</div>`;
+      link = a.forum_url || link;
+      let items = a.topics || [];
+      let row = (t) => this._topicRow(t, false);
+      if (this._tab === "popular") sub = T.popular_sub.replace("{p}", T.period[a.popular_period] || "");
+      else if (this._tab === "unanswered") sub = T.unanswered_sub;
+      else if (this._tab === "search") sub = T.search_sub.replace("{q}", a.search_query || "");
+      else if (this._tab === "posts") { sub = T.posts_sub; items = a.posts || []; row = (p) => this._postRow(p); }
+      else if (this._tab === "unread") { sub = T.unread_sub; items = unreadList; row = (t) => this._topicRow(t, true, t.unread ? `+${t.unread}` : T.new_badge); }
+      else if (this._tab === "tracked") { sub = T.tracked_sub; row = (t) => this._topicRow(t, t.unread > 0, `+${t.unread}`); }
+      else if (this._tab === "bookmarks") { sub = T.bookmarks_sub; items = a.bookmarks || []; row = (b) => this._bookmarkRow(b); }
+      else if (this._tab === "pms") { sub = T.pms_sub; row = (t) => this._topicRow(t, t.unread > 0, `+${t.unread}`); }
+      const rows = items.slice(0, cut).map(row);
+      body = rows.length ? rows.join("") : none;
     } else {
       if (!notifs) body = `<div class="none">${esc(T.no_account)}</div>`;
       else {

@@ -57,6 +57,7 @@
         "title": "Forum HACF",
         "menu_options": {
           "settings": "Kategoria i wyświetlanie",
+          "features": "Funkcje opcjonalne",
           "account": "Połącz moje konto HACF (powiadomienia)",
           "unlink": "Odłącz moje konto HACF"
         }
@@ -76,6 +77,40 @@
           "topics": "Tematy zachowane na każdej liście (5 do 50).",
           "scan_minutes": "W minutach (minimum 5, aby oszczędzać forum).",
           "news": "Artykuły z działu „Aktualności” na hacf.fr, odczytywane co 3 godziny."
+        }
+      },
+      "features": {
+        "title": "Funkcje opcjonalne",
+        "description": "Każdy przełącznik dodaje czujnik (i kartę na karcie). Domyślnie wszystkie są wyłączone: każda dodaje zapytanie do forum.",
+        "data": {
+          "popular": "Popularne tematy",
+          "unanswered": "Tematy bez odpowiedzi",
+          "hide_solved": "Ukryj rozwiązane tematy",
+          "latest_posts": "Najnowsze posty",
+          "profile": "Mój profil (polubienia, posty, odznaki…)",
+          "forum_stats": "Statystyki forum",
+          "contributors": "Najlepsi użytkownicy tygodnia",
+          "popular_period": "Okres popularnych tematów",
+          "search": "Zapisane wyszukiwanie",
+          "unread_new": "Nieprzeczytane i nowe tematy (połączone konto)",
+          "tracked": "Śledzone tematy (połączone konto)",
+          "bookmarks": "Zakładki (połączone konto)",
+          "private_messages": "Wiadomości prywatne (połączone konto)"
+        },
+        "data_description": {
+          "popular": "Karta „Popularne”: najaktywniejsze tematy w wybranym okresie.",
+          "unanswered": "Karta „Bez odpowiedzi”: z listy najnowszych tematów, bez dodatkowego zapytania.",
+          "hide_solved": "Usuwa tematy oznaczone jako rozwiązane z karty Tematy.",
+          "latest_posts": "Karta „Posty”: najnowsze odpowiedzi z fragmentem.",
+          "profile": "Czujniki profilu (wymagany pseudonim), odczyt raz na godzinę.",
+          "forum_stats": "Użytkownicy, aktywni w 7 dni, tematy i posty, odczyt raz na godzinę.",
+          "contributors": "Dziesięciu najbardziej lubianych użytkowników tygodnia, odczyt raz na godzinę.",
+          "popular_period": "Dzień, tydzień, miesiąc lub rok.",
+          "search": "Opcjonalnie, np. „linky”: karta „Szukaj” ze znalezionymi tematami. Puste: wyłączone.",
+          "unread_new": "Liczniki forum dla twojego konta.",
+          "tracked": "Tylko tematy i kategorie śledzone na forum.",
+          "bookmarks": "Twoje zakładki z przypomnieniem.",
+          "private_messages": "Prywatne rozmowy; czujnik liczy te z nieprzeczytanymi postami."
         }
       },
       "account": {
@@ -156,6 +191,82 @@
             "name": "Link do aktualności"
           }
         }
+      },
+      "popular_topics": {
+        "name": "Popularne tematy"
+      },
+      "unanswered_topics": {
+        "name": "Tematy bez odpowiedzi"
+      },
+      "search_results": {
+        "name": "Zapisane wyszukiwanie"
+      },
+      "latest_posts": {
+        "name": "Najnowsze posty"
+      },
+      "likes_received": {
+        "name": "Otrzymane polubienia"
+      },
+      "likes_given": {
+        "name": "Dane polubienia"
+      },
+      "posts_count": {
+        "name": "Posty"
+      },
+      "topics_count": {
+        "name": "Utworzone tematy"
+      },
+      "days_visited": {
+        "name": "Dni odwiedzin"
+      },
+      "solutions": {
+        "name": "Zaakceptowane rozwiązania"
+      },
+      "trust_level": {
+        "name": "Poziom zaufania"
+      },
+      "badges": {
+        "name": "Odznaki"
+      },
+      "forum_members": {
+        "name": "Użytkownicy forum"
+      },
+      "forum_active_users": {
+        "name": "Aktywni użytkownicy (7 dni)"
+      },
+      "forum_topics": {
+        "name": "Tematy forum"
+      },
+      "forum_posts": {
+        "name": "Posty forum"
+      },
+      "top_contributor": {
+        "name": "Użytkownik tygodnia"
+      },
+      "unread_topics": {
+        "name": "Nieprzeczytane tematy"
+      },
+      "new_topics": {
+        "name": "Nowe tematy"
+      },
+      "tracked_topics": {
+        "name": "Śledzone tematy"
+      },
+      "bookmarks": {
+        "name": "Zakładki"
+      },
+      "private_messages": {
+        "name": "Wiadomości prywatne"
+      }
+    }
+  },
+  "selector": {
+    "popular_period": {
+      "options": {
+        "daily": "Dzień",
+        "weekly": "Tydzień",
+        "monthly": "Miesiąc",
+        "yearly": "Rok"
       }
     }
   }

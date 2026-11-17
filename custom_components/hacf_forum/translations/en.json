@@ -56,7 +56,8 @@
       "init": {
         "title": "HACF forum",
         "menu_options": {
-          "settings": "Category and display",
+          "settings": "Category, tag and display",
+          "features": "Optional features",
           "account": "Link my HACF account (notifications)",
           "unlink": "Unlink my HACF account"
         }
@@ -76,6 +77,40 @@
           "topics": "Topics kept in each list (5 to 50).",
           "scan_minutes": "In minutes (at least 5, to spare the forum).",
           "news": "Articles from the “News” section of hacf.fr, read every 3 hours."
+        }
+      },
+      "features": {
+        "title": "Optional features",
+        "description": "Each switch adds a sensor (and a tab in the card). All are off by default: each one adds a request to the forum.",
+        "data": {
+          "popular": "Popular topics",
+          "unanswered": "Unanswered topics",
+          "hide_solved": "Hide solved topics",
+          "latest_posts": "Latest posts",
+          "profile": "My profile (likes, posts, badges…)",
+          "forum_stats": "Forum statistics",
+          "contributors": "Top contributors of the week",
+          "popular_period": "Period for popular topics",
+          "search": "Saved search",
+          "unread_new": "Unread and new topics (linked account)",
+          "tracked": "Tracked topics (linked account)",
+          "bookmarks": "Bookmarks (linked account)",
+          "private_messages": "Private messages (linked account)"
+        },
+        "data_description": {
+          "popular": "“Popular” tab: the most active topics over the chosen period.",
+          "unanswered": "“Unanswered” tab: taken from the latest topics, no extra request.",
+          "hide_solved": "Removes topics marked “Solved” from the Topics tab.",
+          "latest_posts": "“Posts” tab: the latest replies, one per line, with an excerpt.",
+          "profile": "Sensors for your profile (username required), read once an hour.",
+          "forum_stats": "Members, active in 7 days, topics and posts, read once an hour.",
+          "contributors": "The ten most liked members of the week, read once an hour.",
+          "popular_period": "Day, week, month or year.",
+          "search": "Optional, e.g. “linky”: “Search” tab with the topics found, newest first. Empty: off.",
+          "unread_new": "The forum's own counters for your account.",
+          "tracked": "Only the topics and categories you track on the forum.",
+          "bookmarks": "Your bookmarks, with their reminder.",
+          "private_messages": "Your private conversations; the sensor counts those with unread posts."
         }
       },
       "account": {
@@ -156,6 +191,82 @@
             "name": "News link"
           }
         }
+      },
+      "popular_topics": {
+        "name": "Popular topics"
+      },
+      "unanswered_topics": {
+        "name": "Unanswered topics"
+      },
+      "search_results": {
+        "name": "Saved search"
+      },
+      "latest_posts": {
+        "name": "Latest posts"
+      },
+      "likes_received": {
+        "name": "Likes received"
+      },
+      "likes_given": {
+        "name": "Likes given"
+      },
+      "posts_count": {
+        "name": "Posts"
+      },
+      "topics_count": {
+        "name": "Topics created"
+      },
+      "days_visited": {
+        "name": "Days visited"
+      },
+      "solutions": {
+        "name": "Accepted solutions"
+      },
+      "trust_level": {
+        "name": "Trust level"
+      },
+      "badges": {
+        "name": "Badges"
+      },
+      "forum_members": {
+        "name": "Forum members"
+      },
+      "forum_active_users": {
+        "name": "Active members (7 days)"
+      },
+      "forum_topics": {
+        "name": "Forum topics"
+      },
+      "forum_posts": {
+        "name": "Forum posts"
+      },
+      "top_contributor": {
+        "name": "Contributor of the week"
+      },
+      "unread_topics": {
+        "name": "Unread topics"
+      },
+      "new_topics": {
+        "name": "New topics"
+      },
+      "tracked_topics": {
+        "name": "Tracked topics"
+      },
+      "bookmarks": {
+        "name": "Bookmarks"
+      },
+      "private_messages": {
+        "name": "Private messages"
+      }
+    }
+  },
+  "selector": {
+    "popular_period": {
+      "options": {
+        "daily": "Day",
+        "weekly": "Week",
+        "monthly": "Month",
+        "yearly": "Year"
       }
     }
   }

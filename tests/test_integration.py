@@ -216,3 +216,94 @@ async def test_tag_alone_and_in_category(hass: HomeAssistant, aioclient_mock: Ai
     state = hass.states.get(sensor_id)
     assert [t["title"] for t in state.attributes["topics"]] == ["Carte Assist"]
     assert state.attributes["forum_url"] == f"{F}/tags/c/lovelace/12/ia"
+
+
+async def test_optional_features(hass: HomeAssistant, aioclient_mock: AiohttpClientMocker) -> None:
+    """Fonctions facultatives : désactivées par défaut, un capteur chacune une fois l'interrupteur activé."""
+    solved = {**_topic(3, "Résolu", posts=2), "has_accepted_answer": True}
+    aioclient_mock.get("https://www.hacf.fr/tag/news/rss/", text=NEWS_RSS)
+    aioclient_mock.get(f"{F}/site.json", json=SITE)
+    aioclient_mock.get(f"{F}/latest.json", json=_list(_topic(1, "Ma carte météo"), _topic(2, "Sans réponse", posts=1), solved))
+    aioclient_mock.get(f"{F}/topics/created-by/Membre.json", json=_list(_topic(10, "Mes cartes", posts=12)))
+    aioclient_mock.get(f"{F}/top.json?period=monthly", json=_list(_topic(7, "Le plus lu")))
+    aioclient_mock.get(f"{F}/search.json?q=linky%20order%3Alatest", json={
+        "topics": [{"id": 8, "title": "Linky et Tempo", "slug": "linky-tempo", "posts_count": 3, "category_id": 12}],
+        "posts": [{"topic_id": 8, "post_number": 2, "username": "Alice", "created_at": "2026-11-10T10:00:00.000Z",
+                   "blurb": "<b>Linky</b> en mode Tempo", "avatar_template": "/a/{size}.png"}]})
+    aioclient_mock.get(f"{F}/posts.json", json={"latest_posts": [
+        {"id": 50, "topic_id": 1, "topic_slug": "sujet-1", "topic_title": "Ma carte météo", "post_number": 4,
+         "username": "Alice", "created_at": "2026-11-10T10:00:00.000Z", "cooked": "<p>Merci, ça marche !</p>", "category_id": 12}]})
+    aioclient_mock.get(f"{F}/u/Membre/summary.json", json={"user_summary": {
+        "likes_received": 120, "likes_given": 80, "post_count": 300, "topic_count": 12, "days_visited": 200, "solved_count": 9}})
+    aioclient_mock.get(f"{F}/u/Membre.json", json={"user": {"username": "Membre", "trust_level": 2}})
+    aioclient_mock.get(f"{F}/user-badges/Membre.json", json={
+        "badges": [{"id": 1, "name": "Premier j'aime", "slug": "premier-j-aime"}, {"id": 2, "name": "Solution", "slug": "solution"}],
+        "user_badges": [{"badge_id": 1, "granted_at": "2026-01-01T00:00:00Z"}, {"badge_id": 2, "granted_at": "2026-06-01T00:00:00Z"}]})
+    aioclient_mock.get(f"{F}/about.json", json={"about": {"stats": {
+        "users_count": 9000, "active_users_7_days": 700, "topics_count": 30000, "posts_count": 250000}}})
+    aioclient_mock.get(f"{F}/directory_items.json?period=weekly&order=likes_received", json={"directory_items": [
+        {"likes_received": 40, "post_count": 30, "user": {"username": "Bruno", "avatar_template": "/b/{size}.png"}}]})
+    entry = await _setup(hass, {"username": "Membre"})
+    reg = er.async_get(hass)
+    assert reg.async_get_entity_id("sensor", DOMAIN, f"{entry.entry_id}_popular_topics") is None
+
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+    result = await hass.config_entries.options.async_configure(result["flow_id"], {"next_step_id": "features"})
+    assert result["type"] is FlowResultType.FORM and "unread_new" not in result["data_schema"].schema
+    result = await hass.config_entries.options.async_configure(result["flow_id"], {
+        "popular": True, "popular_period": "monthly", "unanswered": True, "hide_solved": True, "latest_posts": True,
+        "profile": True, "forum_stats": True, "contributors": True, "search": " linky "})
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+    await hass.async_block_till_done()
+
+    def state(key: str):
+        return hass.states.get(reg.async_get_entity_id("sensor", DOMAIN, f"{entry.entry_id}_{key}"))
+
+    latest = state("latest_topics").attributes["topics"]
+    assert [t["title"] for t in latest] == ["Ma carte météo", "Sans réponse"]  # résolu masqué
+    assert [t["title"] for t in state("unanswered_topics").attributes["topics"]] == ["Sans réponse"]
+    assert state("popular_topics").attributes["topics"][0]["title"] == "Le plus lu"
+    assert state("popular_topics").attributes["popular_period"] == "monthly"
+    found = state("search_results").attributes["topics"][0]
+    assert found["title"] == "Linky et Tempo" and found["url"] == f"{F}/t/linky-tempo/8/2" and found["excerpt"] == "Linky en mode Tempo"
+    post = state("latest_posts").attributes["posts"][0]
+    assert post["url"] == f"{F}/t/sujet-1/1/4" and post["excerpt"] == "Merci, ça marche !"
+    assert state("likes_received").state == "120" and state("solutions").state == "9" and state("trust_level").state == "2"
+    assert state("badges").state == "2" and state("badges").attributes["last_badge"] == "Solution"
+    assert state("forum_members").state == "9000" and state("forum_active_users").state == "700"
+    assert state("top_contributor").state == "Bruno"
+
+
+async def test_account_features(hass: HomeAssistant, aioclient_mock: AiohttpClientMocker) -> None:
+    """Avec le compte relié : non lus et nouveaux, suivis, signets, messages privés (clé envoyée)."""
+    # avant /latest.json : le simulateur prend la première adresse qui correspond
+    aioclient_mock.get(f"{F}/latest.json?f=tracked", json=_list(_topic(22, "Suivi")))
+    _mock_public(aioclient_mock)
+    aioclient_mock.get(f"{F}/session/current.json", json={"current_user": {"username": "Membre", "all_unread_notifications_count": 0}})
+    aioclient_mock.get(f"{F}/notifications.json", json={"notifications": []})
+    aioclient_mock.get(f"{F}/unread.json", json=_list({**_topic(20, "Non lu", posts=6), "last_read_post_number": 4}))
+    aioclient_mock.get(f"{F}/new.json", json=_list({**_topic(21, "Tout neuf", posts=1), "unseen": True}))
+    aioclient_mock.get(f"{F}/u/Membre/bookmarks.json", json={"user_bookmark_list": {"bookmarks": [
+        {"id": 1, "title": "Carte météo", "name": "À relire", "bookmarkable_url": "/t/carte/30/2",
+         "created_at": "2026-11-01T10:00:00.000Z", "reminder_at": "2099-01-01T10:00:00.000Z"}]}})
+    aioclient_mock.get(f"{F}/topics/private-messages/Membre.json", json=_list(
+        {**_topic(40, "Question privée", posts=3), "last_read_post_number": 1}, {**_topic(41, "Lu", posts=2), "last_read_post_number": 2}))
+    entry = MockConfigEntry(domain=DOMAIN, unique_id="membre", title="Forum HACF (Membre)",
+                            data={"username": "Membre", "user_api_key": "cle", "client_id": "abc"},
+                            options={"unread_new": True, "tracked": True, "bookmarks": True, "private_messages": True})
+    entry.add_to_hass(hass)
+    await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+    reg = er.async_get(hass)
+
+    def state(key: str):
+        return hass.states.get(reg.async_get_entity_id("sensor", DOMAIN, f"{entry.entry_id}_{key}"))
+
+    assert state("unread_topics").state == "1" and state("unread_topics").attributes["topics"][0]["unread"] == 2
+    assert state("new_topics").attributes["topics"][0]["unread"] == 1
+    assert state("tracked_topics").attributes["topics"][0]["title"] == "Suivi"
+    mark = state("bookmarks").attributes["bookmarks"][0]
+    assert mark["url"] == f"{F}/t/carte/30/2" and mark["name"] == "À relire"
+    assert state("private_messages").state == "1"
+    sent = [c for c in aioclient_mock.mock_calls if str(c[1]).endswith("/unread.json")][-1]
+    assert sent[3]["User-Api-Key"] == "cle"
