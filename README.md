@@ -1,5 +1,11 @@
 # Forum HACF pour Home Assistant
 
+> [!WARNING]
+> **Projet arrêté, dépôt archivé (novembre 2026).**
+> J'ai présenté le projet à l'équipe de l'association HACF. Elle y est favorable, mais elle n'est globalement pas convaincue de l'utilité d'afficher ces informations dans Home Assistant. J'ai donc décidé d'arrêter le développement.
+> L'intégration ne sera pas publiée sur HACS et ne recevra plus de mises à jour. Le code reste consultable en lecture seule.
+> Merci à toutes celles et ceux qui l'ont testée !
+
 <p>
   ☕ <strong>Si cette carte vous est utile, vous pouvez soutenir le projet :</strong>
 </p>
