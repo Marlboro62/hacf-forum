@@ -56,6 +56,8 @@
   .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); padding: 10px 16px; border-radius: 10px; background: var(--panel);
     border: 1px solid var(--accent); font-size: .88rem; box-shadow: 0 6px 24px rgba(0,0,0,.3); opacity: 0; pointer-events: none; transition: opacity .2s; max-width: calc(100% - 32px); }
   .toast.on { opacity: 1; }
+  .stop { margin: 0 0 22px; padding: 12px 16px; border-radius: 12px; border: 1px solid #d08a1e; background: color-mix(in srgb, #d08a1e 14%, transparent); font-size: .9rem; }
+  .stop strong { display: block; margin-bottom: 2px; }
   @media (prefers-reduced-motion: reduce) { .frame, .toast { transition: none; } }
 </style>
 </head>
@@ -72,6 +74,11 @@
       <a href="https://github.com/Marlboro62/hacf-forum#installation">Installation</a>
     </nav>
   </header>
+
+  <div class="stop" role="note">
+    <strong>⚠️ Projet arrêté, dépôt archivé (novembre 2026)</strong>
+    L'équipe de l'association HACF est favorable au projet, mais globalement pas convaincue de l'utilité d'afficher ces informations dans Home Assistant. J'ai donc arrêté le développement : l'intégration ne sera pas publiée sur HACS et ne recevra plus de mises à jour. Cette démo reste en ligne à titre d'archive. Merci à celles et ceux qui l'ont testée !
+  </div>
 
   <div class="grid">
     <aside class="panel" aria-label="Réglages de la démo">
